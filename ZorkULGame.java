@@ -122,6 +122,28 @@ public class ZorkULGame {
           }
         }
         break;
+      case "pickup":
+        if (!command.hasSecondWord()) {
+          System.out.println("Pick up what?");
+        } else {
+          String itemName = command.getSecondWord();
+          Item itemToPick = null;
+          for (Item item : player.getCurrentRoom().getItemsInRoom()) {
+            if (item.getName().equalsIgnoreCase(itemName)) {
+              itemToPick = item;
+              break;
+            }
+          }
+          if (itemToPick != null) {
+            player.pickUpItem(itemToPick);
+          } else {
+            System.out.println("There is no such item here.");
+          }
+        }
+        break;
+      case "inventory":
+        player.showInventory();
+        break;
     }
     return false;
   }
