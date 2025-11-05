@@ -1,6 +1,6 @@
 /* This game is a classic text-based adventure set in a university environment.
    The player starts outside the main entrance and can navigate through different rooms like a 
-   lecture theatre, campus pub, computing lab, and admin office using simple text commands (e.g., "go east", "go west").
+   a chipper, campus pub, alleyway, and car using simple text commands (e.g., "go east", "go west").
     The game provides descriptions of each location and lists possible exits.
 
 Key features include:
@@ -9,7 +9,7 @@ Simple command parser: Recognizes a limited set of commands like "go", "help", a
 Player character: Tracks current location and handles moving between rooms.
 Text descriptions: Provides immersive text output describing the player's surroundings and available options.
 Help system: Lists valid commands to guide the player.
-Overall, it recreates the classic Zork interactive fiction experience with a university-themed setting, 
+Overall, it recreates the classic Zork interactive fiction experience with a familiar-themed setting, 
 emphasizing exploration and simple command-driven gameplay
 */
 
@@ -19,9 +19,13 @@ public class ZorkULGame {
 
   private Parser parser;
   private Player player;
+  private String playerName;
   private Room outside, chipper, pub, car, house, alleyway, bathroom1, bathroom2, bathroom3, outsideHouse;
 
   public ZorkULGame() {
+    Scanner scanner = new Scanner(System.in);
+    System.out.println("Hello there, what is your name?");
+    playerName = scanner.nextLine();
     createRooms();
     parser = new Parser();
   }
@@ -68,7 +72,7 @@ public class ZorkULGame {
     outsideHouse.setExit("east", house);
 
     // create the player character and start outside
-    player = new Player("player", outside, 100);
+    player = new Player(playerName, outside, 100, 100);
   }
 
   public void play() {
@@ -84,7 +88,9 @@ public class ZorkULGame {
 
   private void printWelcome() {
     System.out.println();
-    System.out.println("Welcome to a very relatable adventure!");
+    System.out.println(
+      "Welcome " + playerName + ", to a very relatable adventure!"
+    );
     System.out.println(
       "It's a Friday evening and you are standing outside one of your favourite places on earth - the pub"
     );
@@ -149,6 +155,22 @@ public class ZorkULGame {
         break;
       case "inventory":
         player.showInventory();
+        break;
+      case "check":
+        if (!command.hasSecondWord()) {
+          System.out.println("Check what?");
+        } else {
+          String checkWhat = command.getSecondWord();
+          if (checkWhat.equalsIgnoreCase("wallet")) {
+            System.out.println(
+              "You have " + player.getMoney() + " euro in your wallet."
+            );
+          } else if (checkWhat.equalsIgnoreCase("health")) {
+            System.out.println("You have " + player.getHealth() + " health.");
+          } else {
+            System.out.println("You can't check that!");
+          }
+        }
         break;
     }
     return false;

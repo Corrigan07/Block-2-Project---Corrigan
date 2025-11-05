@@ -1,10 +1,7 @@
-import java.util.ArrayList;
-import java.util.List;
-
 public class Character {
 
-  private String name;
-  private Room currentRoom;
+  public String name;
+  public Room currentRoom;
 
   public Character(String name, Room startingRoom) {
     this.name = name;

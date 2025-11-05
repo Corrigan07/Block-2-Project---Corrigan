@@ -14,6 +14,7 @@ public class CommandWords {
     validCommands.put("eat", "Eat something");
     validCommands.put("collect", "Collect an item");
     validCommands.put("inventory", "Show your inventory");
+    validCommands.put("check", "check something");
   }
 
   public boolean isCommand(String commandWord) {

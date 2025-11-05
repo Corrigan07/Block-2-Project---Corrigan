@@ -8,6 +8,7 @@ public class Room {
   private String description;
   private Map<String, Room> exits; // Map direction to neighboring Room
   private final List<Item> items = new ArrayList<>();
+  private final List<NPC> npcs = new ArrayList<>();
 
   public Room(String description) {
     this.description = description;

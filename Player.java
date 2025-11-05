@@ -5,11 +5,13 @@ public class Player extends Character {
 
   private List<Item> inventory;
   private int money;
+  private int health;
 
-  public Player(String name, Room startingRoom, int startingMoney) {
+  public Player(String name, Room startingRoom, int startingMoney, int health) {
     super(name, startingRoom);
     this.money = startingMoney;
     this.inventory = new ArrayList<>();
+    this.health = health;
   }
 
   public void move(String direction) {
@@ -49,5 +51,41 @@ public class Player extends Character {
 
   public int getMoney() {
     return money;
+  }
+
+  public void addMoney(int amount) {
+    if (amount > 0) {
+      money += amount;
+      System.out.println(
+        "You received " + amount + " money. Total money: " + money
+      );
+    }
+  }
+
+  public void removeMoney(int amount) {
+    if (amount > 0 && amount <= money) {
+      money -= amount;
+      System.out.println(
+        "You spent " + amount + " money. Remaining money: " + money
+      );
+    } else {
+      System.out.println("Insufficient funds.");
+    }
+  }
+
+  public int getHealth() {
+    return health;
+  }
+
+  public void removeHealth(int amount) {
+    if (amount > 0) {
+      health -= amount;
+      if (health < 0) {
+        health = 0;
+      }
+      System.out.println(
+        "You lost " + amount + " health. Remaining health: " + health
+      );
+    }
   }
 }
