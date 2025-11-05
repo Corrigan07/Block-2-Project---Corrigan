@@ -18,54 +18,57 @@ import java.util.Scanner;
 public class ZorkULGame {
 
   private Parser parser;
-  private Character player;
-  private Item item; // Placeholder for future item implementation
+  private Player player;
+  private Room outside, chipper, pub, car, house, alleyway, bathroom1, bathroom2, bathroom3, outsideHouse;
 
   public ZorkULGame() {
     createRooms();
-    createItems();
     parser = new Parser();
   }
 
   private void createRooms() {
-    Room outside, theatre, pub, lab, office, hallway;
-
     // create rooms
-    outside = new Room("outside the main entrance of the university");
-    theatre = new Room("in a lecture theatre");
-    pub = new Room("in the campus pub");
-    lab = new Room("in a computing lab");
-    office = new Room("in the computing admin office");
-    hallway = new Room("in the main hall");
+    outside = new Room("in the middle of town");
+    chipper = new Room("in the Mario's Chipper");
+    pub = new Room("in Corrigan's Bar");
+    car = new Room("in a cab");
+    house = new Room("finally home");
+    alleyway = new Room("in a dark and creepy alleyway");
+    bathroom1 = new Room("in a bathroom");
+    bathroom2 = new Room("in a bathroom");
+    bathroom3 = new Room("in a bathroom");
+    outsideHouse = new Room("outside the house");
 
     // add items to rooms
     pub.addItem(new Item("pint", "A refreshing pint of beer on the bar.", 1));
 
     // initialise room exits
-    outside.setExit("east", theatre);
-    outside.setExit("south", lab);
+    outside.setExit("north", chipper);
+    outside.setExit("south", car);
     outside.setExit("west", pub);
-    outside.setExit("north", hallway);
+    outside.setExit("east", alleyway);
 
-    theatre.setExit("west", outside);
+    chipper.setExit("south", outside);
+    chipper.setExit("east", bathroom2);
 
     pub.setExit("east", outside);
+    pub.setExit("north", bathroom1);
 
-    lab.setExit("north", outside);
-    lab.setExit("east", office);
+    car.setExit("north", outside);
+    car.setExit("east", house);
 
-    office.setExit("west", lab);
+    house.setExit("west", outsideHouse);
+    house.setExit("south", bathroom3);
 
-    hallway.setExit("south", outside);
-    hallway.setExit("west", office);
+    alleyway.setExit("west", outside);
+
+    bathroom1.setExit("south", pub);
+    bathroom2.setExit("west", chipper);
+    bathroom3.setExit("north", house);
+    outsideHouse.setExit("east", house);
 
     // create the player character and start outside
-    player = new Character("player", outside);
-  }
-
-  private void createItems() {
-    Item pint = new Item("pint", "A refreshing pint of beer on the bar.", 2);
-    pint.setLocation("pub");
+    player = new Player("player", outside, 100);
   }
 
   public void play() {
@@ -81,7 +84,10 @@ public class ZorkULGame {
 
   private void printWelcome() {
     System.out.println();
-    System.out.println("Welcome to the University adventure!");
+    System.out.println("Welcome to a very relatable adventure!");
+    System.out.println(
+      "It's a Friday evening and you are standing outside one of your favourite places on earth - the pub"
+    );
     System.out.println("Type 'help' if you need help.");
     System.out.println();
     System.out.println(player.getCurrentRoom().getLongDescription());
@@ -122,9 +128,9 @@ public class ZorkULGame {
           }
         }
         break;
-      case "pickup":
+      case "collect":
         if (!command.hasSecondWord()) {
-          System.out.println("Pick up what?");
+          System.out.println("Collect what?");
         } else {
           String itemName = command.getSecondWord();
           Item itemToPick = null;
@@ -149,9 +155,43 @@ public class ZorkULGame {
   }
 
   private void printHelp() {
-    System.out.println(
-      "You are lost. You are alone. You wander around the university."
-    );
+    if (player.getCurrentRoom() == outside) {
+      System.out.println("You are outside, why don't you go to the pub :D");
+    } else if (player.getCurrentRoom() == chipper) {
+      System.out.println(
+        "You are in Mario's Chipper, the best place for chips! Howeever, you can always go back to the pub after getting some grub."
+      );
+    } else if (player.getCurrentRoom() == pub) {
+      System.out.println(
+        "You are in Corrigan's Bar. Hooray! You should stay here for a good while and support your local"
+      );
+    } else if (player.getCurrentRoom() == car) {
+      System.out.println(
+        "You are in a cab. It would be smart to get out and go to your house now."
+      );
+    } else if (player.getCurrentRoom() == house) {
+      System.out.println(
+        "You are finally home. You can go west outside the house or south to a bathroom."
+      );
+    } else if (player.getCurrentRoom() == alleyway) {
+      System.out.println(
+        "You are in a dark and creepy alleyway. You can go west to outside."
+      );
+    } else if (player.getCurrentRoom() == bathroom1) {
+      System.out.println("You are in a bathroom. You can go south to the pub.");
+    } else if (player.getCurrentRoom() == bathroom2) {
+      System.out.println(
+        "You are in a bathroom. You can go west to Mario's Chipper."
+      );
+    } else if (player.getCurrentRoom() == bathroom3) {
+      System.out.println(
+        "You are in a bathroom. You can go north to your house."
+      );
+    } else if (player.getCurrentRoom() == outsideHouse) {
+      System.out.println(
+        "You are outside the house. You can go east to your house."
+      );
+    }
     System.out.print("Your command words are: ");
     parser.showCommands();
   }

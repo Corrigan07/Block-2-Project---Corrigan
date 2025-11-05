@@ -12,7 +12,7 @@ public class CommandWords {
     validCommands.put("help", "Show help");
     validCommands.put("look", "Look around");
     validCommands.put("eat", "Eat something");
-    validCommands.put("pickup", "Pick up an item");
+    validCommands.put("collect", "Collect an item");
     validCommands.put("inventory", "Show your inventory");
   }
 
