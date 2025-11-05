@@ -13,6 +13,7 @@ Overall, it recreates the classic Zork interactive fiction experience with a fam
 emphasizing exploration and simple command-driven gameplay
 */
 
+import java.util.List;
 import java.util.Scanner;
 
 public class ZorkULGame {
@@ -20,13 +21,14 @@ public class ZorkULGame {
   private Parser parser;
   private Player player;
   private String playerName;
-  private Room outside, chipper, pub, car, house, alleyway, bathroom1, bathroom2, bathroom3, outsideHouse;
+  private Room outside, chipper, pub, car, house, alleyway, bathroom1, bathroom2, bathroom3, outsideHouse, bar;
 
   public ZorkULGame() {
     Scanner scanner = new Scanner(System.in);
     System.out.println("Hello there, what is your name?");
     playerName = scanner.nextLine();
     createRooms();
+    createNPCs();
     parser = new Parser();
   }
 
@@ -42,9 +44,13 @@ public class ZorkULGame {
     bathroom2 = new Room("in a bathroom");
     bathroom3 = new Room("in a bathroom");
     outsideHouse = new Room("outside the house");
+    bar = new Room("at the bar counter");
 
     // add items to rooms
-    pub.addItem(new Item("pint", "A refreshing pint of beer on the bar.", 1));
+    Item pint = new Item("pint", "A refreshing pint of beer on the bar.", 1);
+    bar.addItem(pint);
+
+    // add npcs to rooms
 
     // initialise room exits
     outside.setExit("north", chipper);
@@ -57,6 +63,9 @@ public class ZorkULGame {
 
     pub.setExit("east", outside);
     pub.setExit("north", bathroom1);
+    pub.setExit("order", bar);
+
+    bar.setExit("back", pub);
 
     car.setExit("north", outside);
     car.setExit("east", house);
@@ -73,6 +82,21 @@ public class ZorkULGame {
 
     // create the player character and start outside
     player = new Player(playerName, outside, 100, 100);
+  }
+
+  public void createNPCs() {
+    NPC bartender = new NPC(
+      "John the Bartender",
+      pub,
+      List.of(
+        "That'll be 5 euro, please " + playerName + ".",
+        "Sláinte! Enjoy your pint!"
+      )
+    );
+    bartender.setWelcomeLines(
+      List.of("Well bud, how are things?", "Can I get you a pint?")
+    );
+    bar.addNpc(bartender);
   }
 
   public void play() {
@@ -169,6 +193,35 @@ public class ZorkULGame {
             System.out.println("You have " + player.getHealth() + " health.");
           } else {
             System.out.println("You can't check that!");
+          }
+        }
+        break;
+      case "talk":
+        if (player.getCurrentRoom().getNpcsInRoom().isEmpty()) {
+          System.out.println("There is no one here to talk to.");
+        } else {
+          NPC npc = player.getCurrentRoom().getNpcsInRoom().get(0);
+          System.out.println("You talk to " + npc.getName() + ":");
+          for (String line : npc.getWelcomeLines()) {
+            System.out.println("\"" + line + "\"");
+          }
+          String response = parser.getReader().nextLine();
+          if (
+            "yes".equalsIgnoreCase(response) &&
+            npc.getName().equals("John the Bartender")
+          ) {
+            System.out.println(npc.getDialogueLines().get(0));
+            if (player.getMoney() >= 5) {
+              player.removeMoney(5);
+              player.addItemToInventory(
+                player.getCurrentRoom().getItemsInRoom().get(0)
+              );
+              System.out.println(npc.getDialogueLines().get(1));
+            } else {
+              System.out.println("You don't have enough money to buy a pint.");
+            }
+          } else if ("no".equalsIgnoreCase(response)) {
+            System.out.println("Maybe next time!");
           }
         }
         break;

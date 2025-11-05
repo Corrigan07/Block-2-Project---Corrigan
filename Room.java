@@ -47,4 +47,13 @@ public class Room {
   public List<Item> getItemsInRoom() {
     return items;
   }
+
+  public List<NPC> getNpcsInRoom() {
+    return npcs;
+  }
+
+  public void addNpc(NPC npc) {
+    if (npc == null) throw new IllegalArgumentException("npc cannot be null");
+    npcs.add(npc);
+  }
 }

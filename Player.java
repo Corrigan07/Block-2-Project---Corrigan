@@ -49,6 +49,13 @@ public class Player extends Character {
     }
   }
 
+  public void addItemToInventory(Item item) {
+    if (item != null) {
+      inventory.add(item);
+      System.out.println("Added to inventory: " + item.getName());
+    }
+  }
+
   public int getMoney() {
     return money;
   }
