@@ -36,6 +36,17 @@ public class Player extends Character {
     }
   }
 
+  public void dropItem(Item item) {
+    Room room = getCurrentRoom();
+    if (item != null && inventory.contains(item)) {
+      inventory.remove(item);
+      room.addItem(item);
+      System.out.println("You dropped: " + item.getName());
+    } else {
+      System.out.println("You don't have that item.");
+    }
+  }
+
   public List<Item> showInventory() {
     if (inventory.isEmpty()) {
       System.out.println("Your inventory is empty.");
@@ -54,6 +65,10 @@ public class Player extends Character {
       inventory.add(item);
       System.out.println("Added to inventory: " + item.getName());
     }
+  }
+
+  public List<Item> getInventory() {
+    return inventory;
   }
 
   public int getMoney() {

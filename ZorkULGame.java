@@ -47,7 +47,7 @@ public class ZorkULGame {
     bar = new Room("at the bar counter");
 
     // add items to rooms
-    Item pint = new Item("pint", "A refreshing pint of beer on the bar.", 1);
+    Item pint = new Item("pint", "A refreshing pint of beer.", 1);
     bar.addItem(pint);
 
     // add npcs to rooms
@@ -222,6 +222,25 @@ public class ZorkULGame {
             }
           } else if ("no".equalsIgnoreCase(response)) {
             System.out.println("Maybe next time!");
+          }
+        }
+        break;
+      case "drop":
+        if (!command.hasSecondWord()) {
+          System.out.println("Drop what?");
+        } else {
+          String itemName = command.getSecondWord();
+          Item itemToDrop = null;
+          for (Item item : player.getInventory()) {
+            if (item.getName().equalsIgnoreCase(itemName)) {
+              itemToDrop = item;
+              break;
+            }
+          }
+          if (itemToDrop != null) {
+            player.dropItem(itemToDrop);
+          } else {
+            System.out.println("You don't have that item.");
           }
         }
         break;
