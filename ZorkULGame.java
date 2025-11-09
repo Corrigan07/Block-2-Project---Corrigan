@@ -21,7 +21,8 @@ public class ZorkULGame {
   private Parser parser;
   private Player player;
   private String playerName;
-  private Room outside, chipper, pub, car, house, alleyway, bathroom1, bathroom2, bathroom3, outsideHouse, bar;
+  private Room outside, chipper, pub, car, house, alleyway, bathroom1, bathroom2, bathroom3, outsideHouse, bar, chipperCounter;
+  private Item pint, water;
 
   public ZorkULGame() {
     Scanner scanner = new Scanner(System.in);
@@ -45,10 +46,13 @@ public class ZorkULGame {
     bathroom3 = new Room("in a bathroom");
     outsideHouse = new Room("outside the house");
     bar = new Room("at the bar counter");
+    chipperCounter = new Room("at the chipper counter");
 
     // add items to rooms
-    Item pint = new Item("pint", "A refreshing pint of beer.", 1);
+    pint = new Drink("pint", "A refreshing pint of beer.", 1);
     bar.addItem(pint);
+    water = new Drink("water", "A bottle of water to keep you hydrated.", 1);
+    chipperCounter.addItem(water);
 
     // add npcs to rooms
 
@@ -60,6 +64,9 @@ public class ZorkULGame {
 
     chipper.setExit("south", outside);
     chipper.setExit("east", bathroom2);
+    chipper.setExit("order", chipperCounter);
+
+    chipperCounter.setExit("back", chipper);
 
     pub.setExit("east", outside);
     pub.setExit("north", bathroom1);
@@ -81,7 +88,7 @@ public class ZorkULGame {
     outsideHouse.setExit("east", house);
 
     // create the player character and start outside
-    player = new Player(playerName, outside, 100, 100);
+    player = new Player(playerName, outside, 100, 100, 0);
   }
 
   public void createNPCs() {
@@ -157,6 +164,13 @@ public class ZorkULGame {
             System.out.println("- " + item.getDescription());
           }
         }
+        if (currentRoom.getNpcsInRoom().isEmpty()) {
+          System.out.println("There is no one in here");
+        } else {
+          System.out.println(
+            "You see " + currentRoom.getNpcsInRoom().get(0).getName()
+          );
+        }
         break;
       case "collect":
         if (!command.hasSecondWord()) {
@@ -213,9 +227,7 @@ public class ZorkULGame {
             System.out.println(npc.getDialogueLines().get(0));
             if (player.getMoney() >= 5) {
               player.removeMoney(5);
-              player.addItemToInventory(
-                player.getCurrentRoom().getItemsInRoom().get(0)
-              );
+              player.addItemToInventory(pint);
               System.out.println(npc.getDialogueLines().get(1));
             } else {
               System.out.println("You don't have enough money to buy a pint.");
@@ -243,6 +255,52 @@ public class ZorkULGame {
             System.out.println("You don't have that item.");
           }
         }
+        break;
+      case "drink":
+        if (!command.hasSecondWord()) {
+          System.out.println("Drink what?");
+          break;
+        }
+
+        String beverage = command.getSecondWord();
+        Item itemToDrink = null;
+
+        // Check if player has the item at all
+        boolean hasItem = false;
+        for (Item item : player.getInventory()) {
+          if (item.getName().equalsIgnoreCase(beverage)) {
+            hasItem = true;
+            // 2️⃣ If it’s a drink, mark it as drinkable
+            if (item instanceof Drink) {
+              itemToDrink = item;
+            }
+            break;
+          }
+        }
+
+        // Now respond based on what we found
+        if (!hasItem) {
+          System.out.println("You don't have that drink.");
+          break;
+        }
+
+        if (itemToDrink == null) {
+          System.out.println("You can't drink that!");
+          break;
+        }
+
+        // Handle special case: pint
+        if (itemToDrink.getName().equalsIgnoreCase("pint")) {
+          System.out.println("You drank a pint.");
+          player.removeHealth(5);
+          player.incrementPintCount();
+        } else {
+          System.out.println("You drank " + itemToDrink.getName() + ".");
+          player.addHealth(5);
+        }
+
+        // Remove the item after drinking
+        player.removeItemFromInventory(itemToDrink);
         break;
     }
     return false;
