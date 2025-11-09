@@ -6,12 +6,22 @@ public class Player extends Character {
   private List<Item> inventory;
   private int money;
   private int health;
+  private int pintCount;
 
-  public Player(String name, Room startingRoom, int startingMoney, int health) {
+  public Player(
+    String name,
+    Room startingRoom,
+    int startingMoney,
+    int health,
+    int pintCount
+  ) {
     super(name, startingRoom);
     this.money = startingMoney;
     this.inventory = new ArrayList<>();
     this.health = health;
+    this.pintCount = pintCount;
+    Item key = new Item("key", "key to the house", 2);
+    inventory.add(key);
   }
 
   public void move(String direction) {
@@ -44,6 +54,15 @@ public class Player extends Character {
       System.out.println("You dropped: " + item.getName());
     } else {
       System.out.println("You don't have that item.");
+    }
+  }
+
+  public void removeItemFromInventory(Item item) {
+    if (item != null && inventory.contains(item)) {
+      inventory.remove(item);
+      System.out.println("Removed from inventory: " + item.getName());
+    } else {
+      System.out.println("Item not found in inventory.");
     }
   }
 
@@ -109,5 +128,23 @@ public class Player extends Character {
         "You lost " + amount + " health. Remaining health: " + health
       );
     }
+  }
+
+  public void addHealth(int amount) {
+    if (amount > 0) {
+      health += amount;
+      if (health < 0) {
+        health = 0;
+      }
+      System.out.println("You lost " + "health. Remaining health: " + health);
+    }
+  }
+
+  public int getPintCount() {
+    return pintCount;
+  }
+
+  public void incrementPintCount() {
+    pintCount++;
   }
 }

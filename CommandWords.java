@@ -19,6 +19,7 @@ public class CommandWords {
     validCommands.put("yes", "respond yes");
     validCommands.put("no", "respond no");
     validCommands.put("drop", "Drop an item");
+    validCommands.put("drink", "drink something");
   }
 
   public boolean isCommand(String commandWord) {
