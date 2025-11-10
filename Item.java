@@ -5,12 +5,21 @@ public class Item {
   private String location;
   private int id;
   private boolean isVisible;
+  private boolean isCollectible;
 
-  public Item(String name, String description, int id) {
+  public Item(
+    String name,
+    String description,
+    int id,
+    boolean isCollectible,
+    boolean isVisible
+  ) {
     this.name = name;
     this.description = description;
     this.isVisible = true;
     this.id = id;
+    this.isCollectible = isCollectible;
+    this.isVisible = isVisible;
   }
 
   public String getDescription() {
@@ -51,5 +60,13 @@ public class Item {
 
   public void setVisible(boolean visible) {
     isVisible = visible;
+  }
+
+  public boolean isCollectible() {
+    return isCollectible;
+  }
+
+  public void setCollectible(boolean collectible) {
+    isCollectible = collectible;
   }
 }

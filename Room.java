@@ -9,14 +9,20 @@ public class Room {
   private Map<String, Room> exits; // Map direction to neighboring Room
   private final List<Item> items = new ArrayList<>();
   private final List<NPC> npcs = new ArrayList<>();
+  private String longDescription;
 
-  public Room(String description) {
+  public Room(String description, String longDescription) {
     this.description = description;
+    this.longDescription = longDescription;
     exits = new HashMap<>();
   }
 
   public String getDescription() {
     return description;
+  }
+
+  public String getLongDescription() {
+    return longDescription;
   }
 
   public void setExit(String direction, Room neighbor) {
@@ -35,7 +41,7 @@ public class Room {
     return sb.toString().trim();
   }
 
-  public String getLongDescription() {
+  public String getLocationDescription() {
     return "You are " + description + ".\nExits: " + getExitString();
   }
 

@@ -21,7 +21,7 @@ public class ZorkULGame {
   private Parser parser;
   private Player player;
   private String playerName;
-  private Room outside, chipper, pub, car, house, alleyway, bathroom1, bathroom2, bathroom3, outsideHouse, bar, chipperCounter;
+  private Room outside, chipper, pub, car, house, alleyway, bathroomPub, bathroomHouse, bathroomChipper, outsideHouse, bar, chipperCounter;
   private Item pint, water;
 
   public ZorkULGame() {
@@ -35,23 +35,65 @@ public class ZorkULGame {
 
   private void createRooms() {
     // create rooms
-    outside = new Room("in the middle of town");
-    chipper = new Room("in the Mario's Chipper");
-    pub = new Room("in Corrigan's Bar");
-    car = new Room("in a cab");
-    house = new Room("finally home");
-    alleyway = new Room("in a dark and creepy alleyway");
-    bathroom1 = new Room("in a bathroom");
-    bathroom2 = new Room("in a bathroom");
-    bathroom3 = new Room("in a bathroom");
-    outsideHouse = new Room("outside the house");
-    bar = new Room("at the bar counter");
-    chipperCounter = new Room("at the chipper counter");
+    outside = new Room(
+      "in the middle of town",
+      "You are outside on your favourite street, with the pub to your west and Mario's Chipper to your north."
+    );
+    chipper = new Room(
+      "in the Mario's Chipper",
+      "Not the tidiest place, but the chips are the best in town."
+    );
+    pub = new Room(
+      "in Corrigan's Bar",
+      "The place is hopping with Friday night football on the telly."
+    );
+    car = new Room(
+      "in a cab",
+      "The driver seems friendly but his car could use a clean."
+    );
+    house = new Room(
+      "finally home",
+      "Now the fear sets in, will she be happy with you?"
+    );
+    alleyway = new Room(
+      "in a dark and creepy alleyway",
+      "What could you possibly want here?"
+    );
+    bathroomPub = new Room(
+      "in a bathroom",
+      "A few reasons to be here, but none of them good."
+    );
+    bathroomHouse = new Room(
+      "in a bathroom",
+      "The bathroom at home, thank god."
+    );
+    bathroomChipper = new Room(
+      "in a bathroom",
+      "You really should have gone before you left the pub, this is horrible."
+    );
+    outsideHouse = new Room(
+      "outside the house",
+      "You better sneak in and pray herself is asleep."
+    );
+    bar = new Room(
+      "at the bar counter",
+      "Ready to order a pint or two or three or four..."
+    );
+    chipperCounter = new Room(
+      "at the chipper counter",
+      "Your mouth is watering at the though of a curry cheese chip."
+    );
 
     // add items to rooms
-    pint = new Drink("pint", "A refreshing pint of beer.", 1);
+    pint = new Drink("pint", "A refreshing pint of beer.", 1, false, true);
     bar.addItem(pint);
-    water = new Drink("water", "A bottle of water to keep you hydrated.", 1);
+    water = new Drink(
+      "water",
+      "A bottle of water to keep you hydrated.",
+      1,
+      false,
+      true
+    );
     chipperCounter.addItem(water);
 
     // add npcs to rooms
@@ -63,13 +105,13 @@ public class ZorkULGame {
     outside.setExit("east", alleyway);
 
     chipper.setExit("south", outside);
-    chipper.setExit("east", bathroom2);
+    chipper.setExit("east", bathroomChipper);
     chipper.setExit("order", chipperCounter);
 
     chipperCounter.setExit("back", chipper);
 
     pub.setExit("east", outside);
-    pub.setExit("north", bathroom1);
+    pub.setExit("north", bathroomPub);
     pub.setExit("order", bar);
 
     bar.setExit("back", pub);
@@ -78,13 +120,13 @@ public class ZorkULGame {
     car.setExit("east", house);
 
     house.setExit("west", outsideHouse);
-    house.setExit("south", bathroom3);
+    house.setExit("south", bathroomHouse);
 
     alleyway.setExit("west", outside);
 
-    bathroom1.setExit("south", pub);
-    bathroom2.setExit("west", chipper);
-    bathroom3.setExit("north", house);
+    bathroomPub.setExit("south", pub);
+    bathroomChipper.setExit("west", chipper);
+    bathroomHouse.setExit("north", house);
     outsideHouse.setExit("east", house);
 
     // create the player character and start outside
@@ -98,12 +140,24 @@ public class ZorkULGame {
       List.of(
         "That'll be 5 euro, please " + playerName + ".",
         "Sláinte! Enjoy your pint!"
-      )
-    );
-    bartender.setWelcomeLines(
+      ),
       List.of("Well bud, how are things?", "Can I get you a pint?")
     );
     bar.addNpc(bartender);
+    NPC lad = new NPC(
+      "Bob",
+      pub,
+      List.of(
+        "You'll surely stay out for a while tonight, you've been under that woman's thumb for weeks now",
+        "United are playing like!",
+        "Anyway, go get yourself a pint there!"
+      ),
+      List.of(
+        "Well lad, what's the craic?",
+        "Thank god it's Friday that's for sure!"
+      )
+    );
+    pub.addNpc(lad);
   }
 
   public void play() {
@@ -154,6 +208,7 @@ public class ZorkULGame {
         }
       case "look":
         Room currentRoom = player.getCurrentRoom();
+        System.out.println(currentRoom.getLocationDescription());
         System.out.println(currentRoom.getLongDescription());
 
         if (currentRoom.getItemsInRoom().isEmpty()) {
@@ -165,7 +220,7 @@ public class ZorkULGame {
           }
         }
         if (currentRoom.getNpcsInRoom().isEmpty()) {
-          System.out.println("There is no one in here");
+          System.out.println("There is no one to talk to in here");
         } else {
           System.out.println(
             "You see " + currentRoom.getNpcsInRoom().get(0).getName()
@@ -184,10 +239,13 @@ public class ZorkULGame {
               break;
             }
           }
-          if (itemToPick != null) {
-            player.pickUpItem(itemToPick);
-          } else {
+
+          if (itemToPick == null) {
             System.out.println("There is no such item here.");
+          } else if (!itemToPick.isCollectible()) {
+            System.out.println("You can't collect that item.");
+          } else {
+            player.pickUpItem(itemToPick);
           }
         }
         break;
@@ -228,12 +286,18 @@ public class ZorkULGame {
             if (player.getMoney() >= 5) {
               player.removeMoney(5);
               player.addItemToInventory(pint);
-              System.out.println(npc.getDialogueLines().get(1));
+              System.out.println("\"" + npc.getDialogueLines().get(1) + "\"");
             } else {
               System.out.println("You don't have enough money to buy a pint.");
             }
           } else if ("no".equalsIgnoreCase(response)) {
             System.out.println("Maybe next time!");
+          } else if (npc.getName().equals("Bob")) {
+            System.out.println("\"" + npc.getDialogueLines().get(0) + "\"");
+            System.out.println("\"" + npc.getDialogueLines().get(1) + "\"");
+            System.out.println("\"" + npc.getDialogueLines().get(2) + "\"");
+          } else {
+            System.out.println("I don't understand your response.");
           }
         }
         break;
@@ -270,7 +334,7 @@ public class ZorkULGame {
         for (Item item : player.getInventory()) {
           if (item.getName().equalsIgnoreCase(beverage)) {
             hasItem = true;
-            // 2️⃣ If it’s a drink, mark it as drinkable
+            // If it’s a drink, mark it as drinkable
             if (item instanceof Drink) {
               itemToDrink = item;
             }
@@ -329,13 +393,13 @@ public class ZorkULGame {
       System.out.println(
         "You are in a dark and creepy alleyway. You can go west to outside."
       );
-    } else if (player.getCurrentRoom() == bathroom1) {
+    } else if (player.getCurrentRoom() == bathroomPub) {
       System.out.println("You are in a bathroom. You can go south to the pub.");
-    } else if (player.getCurrentRoom() == bathroom2) {
+    } else if (player.getCurrentRoom() == bathroomChipper) {
       System.out.println(
         "You are in a bathroom. You can go west to Mario's Chipper."
       );
-    } else if (player.getCurrentRoom() == bathroom3) {
+    } else if (player.getCurrentRoom() == bathroomHouse) {
       System.out.println(
         "You are in a bathroom. You can go north to your house."
       );
@@ -362,6 +426,7 @@ public class ZorkULGame {
       System.out.println("There is no door!");
     } else {
       player.setCurrentRoom(nextRoom);
+      System.out.println(player.getCurrentRoom().getLocationDescription());
       System.out.println(player.getCurrentRoom().getLongDescription());
     }
   }

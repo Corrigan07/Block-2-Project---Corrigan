@@ -5,9 +5,15 @@ public class NPC extends Character {
   private List<String> welcomeLines;
   private List<String> dialogueLines;
 
-  public NPC(String name, Room startingRoom, List<String> dialogueLines) {
+  public NPC(
+    String name,
+    Room startingRoom,
+    List<String> dialogueLines,
+    List<String> welcomeLines
+  ) {
     super(name, startingRoom);
     this.dialogueLines = dialogueLines;
+    this.welcomeLines = welcomeLines;
   }
 
   public List<String> getDialogueLines() {

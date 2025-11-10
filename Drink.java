@@ -5,8 +5,14 @@ public class Drink extends Item {
 
   private List<Item> drinks;
 
-  public Drink(String name, String description, int id) {
-    super(name, description, id);
+  public Drink(
+    String name,
+    String description,
+    int id,
+    boolean isCollectible,
+    boolean isVisible
+  ) {
+    super(name, description, id, isCollectible, isVisible);
     this.drinks = new ArrayList<>();
   }
 

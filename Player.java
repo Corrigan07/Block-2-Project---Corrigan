@@ -20,7 +20,7 @@ public class Player extends Character {
     this.inventory = new ArrayList<>();
     this.health = health;
     this.pintCount = pintCount;
-    Item key = new Item("key", "key to the house", 2);
+    Item key = new Item("key", "key to the house", 2, true, true);
     inventory.add(key);
   }
 
