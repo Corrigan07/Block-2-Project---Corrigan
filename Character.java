@@ -1,4 +1,6 @@
-public class Character {
+import java.io.Serializable;
+
+public class Character implements Serializable {
 
   public String name;
   public Room currentRoom;

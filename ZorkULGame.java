@@ -20,14 +20,25 @@ public class ZorkULGame {
 
   private Parser parser;
   private Player player;
+  private String gameChoice;
   private String playerName;
   private Room outside, chipper, pub, car, house, alleyway, bathroomPub, bathroomHouse, bathroomChipper, outsideHouse, bar, chipperCounter;
   private Item pint, water;
 
   public ZorkULGame() {
     Scanner scanner = new Scanner(System.in);
-    System.out.println("Hello there, what is your name?");
-    playerName = scanner.nextLine();
+    System.out.println(
+      "Would you like to start a new game or load a saved game? (new/load)"
+    );
+    gameChoice = scanner.nextLine().trim().toLowerCase();
+    if (gameChoice.equals("new")) {
+      System.out.println("Hello there, what is your name?");
+      playerName = scanner.nextLine();
+    } else {
+      System.out.println("Loading saved game...");
+      // You can add additional loading logic here if needed
+    }
+
     createRooms();
     createNPCs();
     parser = new Parser();
@@ -129,8 +140,18 @@ public class ZorkULGame {
     bathroomHouse.setExit("north", house);
     outsideHouse.setExit("east", house);
 
-    // create the player character and start outside
-    player = new Player(playerName, outside, 100, 100, 0);
+    if (gameChoice.equals("load")) {
+      Player loaded = Player.loadPlayerState();
+      if (loaded != null) {
+        player = loaded;
+        System.out.println("Game loaded successfully!");
+      } else {
+        System.out.println("No saved game found. Starting a new game.");
+      }
+    } else {
+      // create the player character and start outside
+      player = new Player(playerName, outside, 100, 100, 0);
+    }
   }
 
   public void createNPCs() {
@@ -365,6 +386,10 @@ public class ZorkULGame {
 
         // Remove the item after drinking
         player.removeItemFromInventory(itemToDrink);
+        break;
+      case "save":
+        player.savePlayerState();
+        System.out.println("Game saved successfully.");
         break;
     }
     return false;

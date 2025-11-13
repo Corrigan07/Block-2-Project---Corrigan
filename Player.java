@@ -1,7 +1,10 @@
+import java.io.*;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Player extends Character {
+public class Player extends Character implements Serializable {
 
   private List<Item> inventory;
   private int money;
@@ -146,5 +149,33 @@ public class Player extends Character {
 
   public void incrementPintCount() {
     pintCount++;
+  }
+
+  public void savePlayerState() {
+    try (
+      ObjectOutputStream out = new ObjectOutputStream(
+        new FileOutputStream("player.ser")
+      )
+    ) {
+      out.writeObject(this);
+      System.out.println("Player state saved successfully.");
+    } catch (Exception e) {
+      System.out.println("Error saving player state: " + e.getMessage());
+    }
+  }
+
+  public static Player loadPlayerState() {
+    try (
+      ObjectInputStream in = new ObjectInputStream(
+        new FileInputStream("player.ser")
+      )
+    ) {
+      Player player = (Player) in.readObject();
+      System.out.println("Player state loaded successfully.");
+      return player;
+    } catch (Exception e) {
+      System.out.println("Error loading player state: " + e.getMessage());
+      return null;
+    }
   }
 }

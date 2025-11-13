@@ -20,6 +20,7 @@ public class CommandWords {
     validCommands.put("no", "respond no");
     validCommands.put("drop", "Drop an item");
     validCommands.put("drink", "drink something");
+    validCommands.put("save", "Save your game");
   }
 
   public boolean isCommand(String commandWord) {
