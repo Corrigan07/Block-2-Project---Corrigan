@@ -1,74 +1,42 @@
 import java.io.Serializable;
 
-public class Item implements Serializable {
+public interface Item extends Serializable {
+  //public Item(
+  //String name,
+  //String description,
+  //int id,
+  //boolean isCollectible,
+  //boolean isVisible
+  //) {
+  //this.name = name;
+  //this.description = description;
+  //this.isVisible = true;
+  //this.id = id;
+  //this.isCollectible = isCollectible;
+  //this.isVisible = isVisible;
+  //}
 
-  private String description;
-  private String name;
-  private String location;
-  private int id;
-  private boolean isVisible;
-  private boolean isCollectible;
+  public String getDescription();
 
-  public Item(
-    String name,
-    String description,
-    int id,
-    boolean isCollectible,
-    boolean isVisible
-  ) {
-    this.name = name;
-    this.description = description;
-    this.isVisible = true;
-    this.id = id;
-    this.isCollectible = isCollectible;
-    this.isVisible = isVisible;
-  }
+  public void setDescription(String description);
 
-  public String getDescription() {
-    return description;
-  }
+  public String getName();
 
-  public void setDescription(String description) {
-    this.description = description;
-  }
+  public void setName(String name);
 
-  public String getName() {
-    return name;
-  }
+  public String getLocation();
 
-  public void setName(String name) {
-    this.name = name;
-  }
+  public void setLocation(String location);
 
-  public String getLocation() {
-    return location;
-  }
+  public int getId();
 
-  public void setLocation(String location) {
-    this.location = location;
-  }
+  public void setId(int id);
 
-  public int getId() {
-    return id;
-  }
+  public boolean isVisible();
 
-  public void setId(int id) {
-    this.id = id;
-  }
+  public void setVisible(boolean visible);
 
-  public boolean isVisible() {
-    return isVisible;
-  }
+  public boolean isCollectible();
 
-  public void setVisible(boolean visible) {
-    isVisible = visible;
-  }
-
-  public boolean isCollectible() {
-    return isCollectible;
-  }
-
-  public void setCollectible(boolean collectible) {
-    isCollectible = collectible;
-  }
+  public void setCollectible(boolean collectible);
 }

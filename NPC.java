@@ -35,7 +35,15 @@ public class NPC extends Character {
   public void welcomePlayer() {
     if (welcomeLines != null) {
       for (String line : welcomeLines) {
-        System.out.println(line);
+        System.out.println("\"" + line + "\"");
+      }
+    }
+  }
+
+  public void talk() {
+    if (dialogueLines != null) {
+      for (String line : dialogueLines) {
+        System.out.println("\"" + line + "\"");
       }
     }
   }

@@ -23,7 +23,7 @@ public class ZorkULGame {
   private String gameChoice;
   private String playerName;
   private Room outside, chipper, pub, car, house, alleyway, bathroomPub, bathroomHouse, bathroomChipper, outsideHouse, bar, chipperCounter;
-  private Item pint, water;
+  private Item pint, water, chips;
 
   public ZorkULGame() {
     Scanner scanner = new Scanner(System.in);
@@ -106,6 +106,7 @@ public class ZorkULGame {
       true
     );
     chipperCounter.addItem(water);
+    chips = new Food("chips", "A delicious serving of chips.", 2, false, true);
 
     // add npcs to rooms
 
@@ -147,6 +148,9 @@ public class ZorkULGame {
         System.out.println("Game loaded successfully!");
       } else {
         System.out.println("No saved game found. Starting a new game.");
+        System.out.println("Hello there, what is your name?");
+        playerName = new Scanner(System.in).nextLine();
+        player = new Player(playerName, outside, 100, 100, 0);
       }
     } else {
       // create the player character and start outside
@@ -194,9 +198,7 @@ public class ZorkULGame {
 
   private void printWelcome() {
     System.out.println();
-    System.out.println(
-      "Welcome " + playerName + ", to a very relatable adventure!"
-    );
+    System.out.println("Welcome " + playerName + ", to The Usual!");
     System.out.println(
       "It's a Friday evening and you are standing outside one of your favourite places on earth - the pub"
     );
@@ -295,9 +297,7 @@ public class ZorkULGame {
         } else {
           NPC npc = player.getCurrentRoom().getNpcsInRoom().get(0);
           System.out.println("You talk to " + npc.getName() + ":");
-          for (String line : npc.getWelcomeLines()) {
-            System.out.println("\"" + line + "\"");
-          }
+          npc.welcomePlayer();
           String response = parser.getReader().nextLine();
           if (
             "yes".equalsIgnoreCase(response) &&
@@ -314,9 +314,7 @@ public class ZorkULGame {
           } else if ("no".equalsIgnoreCase(response)) {
             System.out.println("Maybe next time!");
           } else if (npc.getName().equals("Bob")) {
-            System.out.println("\"" + npc.getDialogueLines().get(0) + "\"");
-            System.out.println("\"" + npc.getDialogueLines().get(1) + "\"");
-            System.out.println("\"" + npc.getDialogueLines().get(2) + "\"");
+            npc.talk();
           } else {
             System.out.println("I don't understand your response.");
           }
@@ -365,7 +363,7 @@ public class ZorkULGame {
 
         // Now respond based on what we found
         if (!hasItem) {
-          System.out.println("You don't have that drink.");
+          System.out.println("You don't have that.");
           break;
         }
 
@@ -390,6 +388,52 @@ public class ZorkULGame {
       case "save":
         player.savePlayerState();
         System.out.println("Game saved successfully.");
+        break;
+      case "eat":
+        if (!command.hasSecondWord()) {
+          System.out.println("Eat what?");
+          break;
+        }
+
+        String meal = command.getSecondWord();
+        Item itemToEat = null;
+
+        // Check if player has the item at all
+        boolean hasGrub = false;
+        for (Item item : player.getInventory()) {
+          if (item.getName().equalsIgnoreCase(meal)) {
+            hasGrub = true;
+            // If it’s a food, mark it as eatable
+            if (item instanceof Food) {
+              itemToEat = item;
+            }
+            break;
+          }
+        }
+
+        // Now respond based on what we found
+        if (!hasGrub) {
+          System.out.println("You don't have that.");
+          break;
+        }
+
+        if (itemToEat == null) {
+          System.out.println("You can't eat that!");
+          break;
+        }
+
+        // Handle special case: possible future food types
+        //if (itemToEat.getName().equalsIgnoreCase("pint")) {
+        //System.out.println("You drank a pint.");
+        //player.removeHealth(5);
+        //player.incrementPintCount();
+        //} else {
+        //System.out.println("You ate " + itemToEat.getName() + ".");
+        //player.addHealth(5);
+        //}
+
+        // Remove the item after drinking
+        player.removeItemFromInventory(itemToEat);
         break;
     }
     return false;

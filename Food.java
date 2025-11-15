@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.List;
-
-public class Drink implements Item {
+public class Food implements Item {
 
   private String name;
   private String description;
@@ -9,9 +6,8 @@ public class Drink implements Item {
   private int id;
   private boolean isVisible;
   private boolean isCollectible;
-  private List<Item> drinks;
 
-  public Drink(
+  public Food(
     String name,
     String description,
     int id,
@@ -23,22 +19,6 @@ public class Drink implements Item {
     this.id = id;
     this.isCollectible = isCollectible;
     this.isVisible = isVisible;
-    this.drinks = new ArrayList<>();
-  }
-
-  public List<Item> getDrinks() {
-    return drinks;
-  }
-
-  public void addDrink(Item drink) {
-    if (drink == null) throw new IllegalArgumentException(
-      "drink cannot be null"
-    );
-    drinks.add(drink);
-  }
-
-  public void removeDrink(Item drink) {
-    drinks.remove(drink);
   }
 
   @Override
@@ -63,7 +43,7 @@ public class Drink implements Item {
 
   @Override
   public String getLocation() {
-    return null;
+    return location;
   }
 
   @Override

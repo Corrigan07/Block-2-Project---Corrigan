@@ -1,10 +1,9 @@
 import java.io.*;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Player extends Character implements Serializable {
+public class Player extends Character {
 
   private List<Item> inventory;
   private int money;
@@ -23,7 +22,7 @@ public class Player extends Character implements Serializable {
     this.inventory = new ArrayList<>();
     this.health = health;
     this.pintCount = pintCount;
-    Item key = new Item("key", "key to the house", 2, true, true);
+    Item key = new UsableItem("key", "key to the house", 2, true, true, true);
     inventory.add(key);
   }
 
