@@ -1,6 +1,6 @@
-/* This game is a classic text-based adventure set in a university environment.
+/* This game is a classic text-based adventure set in a rural environment.
    The player starts outside the main entrance and can navigate through different rooms like a 
-   a chipper, campus pub, alleyway, and car using simple text commands (e.g., "go east", "go west").
+   a chipper, pub, alleyway, and car using simple text commands (e.g., "go east", "go west").
     The game provides descriptions of each location and lists possible exits.
 
 Key features include:
@@ -23,7 +23,8 @@ public class ZorkULGame {
   private String gameChoice;
   private String playerName;
   private Room outside, chipper, pub, car, house, alleyway, bathroomPub, bathroomHouse, bathroomChipper, outsideHouse, bar, chipperCounter;
-  private Item pint, water, chips;
+  private Drink pint, water;
+  private Food chips, burger, kebab;
 
   public ZorkULGame() {
     Scanner scanner = new Scanner(System.in);
@@ -31,14 +32,6 @@ public class ZorkULGame {
       "Would you like to start a new game or load a saved game? (new/load)"
     );
     gameChoice = scanner.nextLine().trim().toLowerCase();
-    if (gameChoice.equals("new")) {
-      System.out.println("Hello there, what is your name?");
-      playerName = scanner.nextLine();
-    } else {
-      System.out.println("Loading saved game...");
-      // You can add additional loading logic here if needed
-    }
-
     createRooms();
     createNPCs();
     parser = new Parser();
@@ -107,6 +100,23 @@ public class ZorkULGame {
     );
     chipperCounter.addItem(water);
     chips = new Food("chips", "A delicious serving of chips.", 2, false, true);
+    chipperCounter.addItem(chips);
+    Box<Food> box = new Box<>("box", "A takeaway box", 3, false, true);
+    box.setValue(chips);
+    chipperCounter.addItem(box);
+    Box<Drink> waterBox = new Box<>(
+      "crate",
+      "A crate of water",
+      4,
+      false,
+      true
+    );
+    waterBox.setValue(water);
+    chipperCounter.addItem(waterBox);
+    burger = new Food("burger", "A juicy beef burger.", 3, false, true);
+    chipperCounter.addItem(burger);
+    kebab = new Food("kebab", "A lovely doner kebab.", 4, false, true);
+    chipperCounter.addItem(kebab);
 
     // add npcs to rooms
 
@@ -145,15 +155,30 @@ public class ZorkULGame {
       Player loaded = Player.loadPlayerState();
       if (loaded != null) {
         player = loaded;
-        System.out.println("Game loaded successfully!");
+        // restore runtime-only fields
+        if (player.getCurrentRoom() == null) {
+          player.setCurrentRoom(outside);
+        }
+        // ensure playerName matches the loaded player so welcome text is correct
+        playerName = player.getName();
+        System.out.println(
+          "Game loaded successfully! Welcome back, " + playerName + "!"
+        );
       } else {
         System.out.println("No saved game found. Starting a new game.");
         System.out.println("Hello there, what is your name?");
         playerName = new Scanner(System.in).nextLine();
         player = new Player(playerName, outside, 100, 100, 0);
       }
+    } else if (gameChoice.equals("new")) {
+      System.out.println("Hello there, what is your name?");
+      playerName = new Scanner(System.in).nextLine();
+      player = new Player(playerName, outside, 100, 100, 0);
     } else {
       // create the player character and start outside
+      System.out.println("Unknown command. Starting a new game.");
+      System.out.println("Hello there, what is your name?");
+      playerName = new Scanner(System.in).nextLine();
       player = new Player(playerName, outside, 100, 100, 0);
     }
   }
@@ -169,6 +194,7 @@ public class ZorkULGame {
       List.of("Well bud, how are things?", "Can I get you a pint?")
     );
     bar.addNpc(bartender);
+
     NPC lad = new NPC(
       "Bob",
       pub,
@@ -183,6 +209,21 @@ public class ZorkULGame {
       )
     );
     pub.addNpc(lad);
+
+    NPC chipperOwner = new NPC(
+      "Mario",
+      chipper,
+      List.of(
+        "That'll be 7 euro for the curry cheese chips, my friend.",
+        "Enjoy your meal!",
+        "Anything else my friend?"
+      ),
+      List.of(
+        "Hello my friend!, Welcome to Mario's Chipper!",
+        "Is it really Friday already? The usual I suppose?"
+      )
+    );
+    chipperCounter.addNpc(chipperOwner);
   }
 
   public void play() {
@@ -299,24 +340,103 @@ public class ZorkULGame {
           System.out.println("You talk to " + npc.getName() + ":");
           npc.welcomePlayer();
           String response = parser.getReader().nextLine();
-          if (
-            "yes".equalsIgnoreCase(response) &&
-            npc.getName().equals("John the Bartender")
-          ) {
-            System.out.println(npc.getDialogueLines().get(0));
-            if (player.getMoney() >= 5) {
-              player.removeMoney(5);
-              player.addItemToInventory(pint);
-              System.out.println("\"" + npc.getDialogueLines().get(1) + "\"");
+
+          if (npc.getName().equals("John the Bartender")) {
+            if ("yes".equalsIgnoreCase(response)) {
+              System.out.println(npc.getDialogueLines().get(0));
+              if (player.getMoney() >= 5) {
+                player.removeMoney(5);
+                player.addItemToInventory(pint);
+                System.out.println("\"" + npc.getDialogueLines().get(1) + "\"");
+              } else {
+                System.out.println(
+                  "You don't have enough money to buy a pint."
+                );
+              }
+            } else if ("no".equalsIgnoreCase(response)) {
+              System.out.println("Maybe next time!");
             } else {
-              System.out.println("You don't have enough money to buy a pint.");
+              System.out.println("I don't understand your response.");
             }
-          } else if ("no".equalsIgnoreCase(response)) {
-            System.out.println("Maybe next time!");
+          } else if (npc.getName().equals("Mario")) {
+            if ("yes".equalsIgnoreCase(response)) {
+              System.out.println(npc.getDialogueLines().get(0));
+              if (player.getMoney() >= 7) {
+                player.removeMoney(7);
+                player.addItemToInventory(chips);
+                System.out.println("\"" + npc.getDialogueLines().get(1) + "\"");
+                System.out.println("\"" + npc.getDialogueLines().get(2) + "\"");
+                String response2 = parser.getReader().nextLine();
+                if ("burger".equalsIgnoreCase(response2)) {
+                  if (player.getMoney() >= 6) {
+                    player.removeMoney(6);
+                    player.addItemToInventory(burger);
+                    System.out.println(
+                      "\"" + npc.getDialogueLines().get(1) + "\""
+                    );
+                  } else {
+                    System.out.println(
+                      "You don't have enough money to buy a burger."
+                    );
+                  }
+                } else if ("kebab".equalsIgnoreCase(response2)) {
+                  if (player.getMoney() >= 8) {
+                    player.removeMoney(8);
+                    player.addItemToInventory(kebab);
+                    System.out.println(
+                      "\"" + npc.getDialogueLines().get(1) + "\""
+                    );
+                  } else {
+                    System.out.println(
+                      "You don't have enough money to buy a kebab."
+                    );
+                  }
+                } else {
+                  System.out.println(
+                    "\"" + "I don't understand your response." + "\""
+                  );
+                }
+              } else {
+                System.out.println("You don't have enough money to buy chips.");
+              }
+            } else if ("no".equalsIgnoreCase(response)) {
+              System.out.println("Maybe next time!");
+              System.out.println("\"" + npc.getDialogueLines().get(2) + "\"");
+              String reply = parser.getReader().nextLine();
+              if ("burger".equalsIgnoreCase(reply)) {
+                if (player.getMoney() >= 6) {
+                  player.removeMoney(6);
+                  player.addItemToInventory(burger);
+                  System.out.println(
+                    "\"" + npc.getDialogueLines().get(1) + "\""
+                  );
+                } else {
+                  System.out.println(
+                    "You don't have enough money to buy a burger."
+                  );
+                }
+              } else if ("kebab".equalsIgnoreCase(reply)) {
+                if (player.getMoney() >= 8) {
+                  player.removeMoney(8);
+                  player.addItemToInventory(kebab);
+                  System.out.println(
+                    "\"" + npc.getDialogueLines().get(1) + "\""
+                  );
+                } else {
+                  System.out.println(
+                    "You don't have enough money to buy a kebab."
+                  );
+                }
+              } else if ("no".equalsIgnoreCase(reply)) {
+                System.out.println("See you around so!");
+              } else {
+                System.out.println(
+                  "\"" + "I don't understand your response." + "\""
+                );
+              }
+            }
           } else if (npc.getName().equals("Bob")) {
             npc.talk();
-          } else {
-            System.out.println("I don't understand your response.");
           }
         }
         break;
@@ -421,19 +541,49 @@ public class ZorkULGame {
           System.out.println("You can't eat that!");
           break;
         }
-
         // Handle special case: possible future food types
         //if (itemToEat.getName().equalsIgnoreCase("pint")) {
         //System.out.println("You drank a pint.");
         //player.removeHealth(5);
         //player.incrementPintCount();
-        //} else {
-        //System.out.println("You ate " + itemToEat.getName() + ".");
-        //player.addHealth(5);
-        //}
+        else {
+          System.out.println("You ate " + itemToEat.getName() + ".");
+          player.addHealth(5);
+        }
 
-        // Remove the item after drinking
+        // Remove the item after eating
         player.removeItemFromInventory(itemToEat);
+        break;
+      case "open":
+        if (!command.hasSecondWord()) {
+          System.out.println("Open what?");
+          break;
+        }
+
+        String boxName = command.getSecondWord();
+        Item itemToOpen = null;
+
+        for (Item item : player.currentRoom.getItemsInRoom()) {
+          if (item.getName().equalsIgnoreCase(boxName) && item instanceof Box) {
+            itemToOpen = item;
+            break;
+          }
+        }
+
+        if (itemToOpen == null) {
+          System.out.println("There is no such box here.");
+        } else {
+          Box<?> boxItem = (Box<?>) itemToOpen;
+          System.out.println(
+            "You opened the " +
+            boxItem.getName() +
+            " and found: " +
+            boxItem.getValue().getDescription()
+          );
+          player.addItemToInventory(boxItem.getValue());
+          player.currentRoom.removeItem(boxItem);
+        }
+
         break;
     }
     return false;

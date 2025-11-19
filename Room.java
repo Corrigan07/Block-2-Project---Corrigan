@@ -51,6 +51,10 @@ public class Room implements Serializable {
     items.add(item);
   }
 
+  public void removeItem(Item item) {
+    items.remove(item);
+  }
+
   public List<Item> getItemsInRoom() {
     return items;
   }

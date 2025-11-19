@@ -138,7 +138,9 @@ public class Player extends Character {
       if (health < 0) {
         health = 0;
       }
-      System.out.println("You lost " + "health. Remaining health: " + health);
+      System.out.println(
+        "You gained " + amount + " health. Remaining health: " + health
+      );
     }
   }
 
