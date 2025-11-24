@@ -9,6 +9,7 @@ com\zork\Item.class
 com\zork\ZorkUL.class
 com\zork\Command.class
 com\zork\Room.class
+com\zork\GuiMain.class
 com\zork\Player.class
 com\zork\Box.class
 com\zork\UsableItem.class
