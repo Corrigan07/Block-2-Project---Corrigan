@@ -1,6 +1,6 @@
 package com.zork;
 
-public class Food implements Item {
+public class Food implements PurchasableItem {
 
   private String name;
   private String description;
@@ -8,19 +8,22 @@ public class Food implements Item {
   private int id;
   private boolean isVisible;
   private boolean isCollectible;
+  private int price;
 
   public Food(
     String name,
     String description,
     int id,
     boolean isCollectible,
-    boolean isVisible
+    boolean isVisible,
+    int price
   ) {
     this.name = name;
     this.description = description;
     this.id = id;
     this.isCollectible = isCollectible;
     this.isVisible = isVisible;
+    this.price = price;
   }
 
   @Override
@@ -81,5 +84,10 @@ public class Food implements Item {
   @Override
   public void setCollectible(boolean collectible) {
     this.isCollectible = collectible;
+  }
+
+  @Override
+  public int getPrice() {
+    return price;
   }
 }

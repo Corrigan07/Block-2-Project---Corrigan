@@ -3,7 +3,7 @@ package com.zork;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Drink implements Item {
+public class Drink implements PurchasableItem {
 
   private String name;
   private String description;
@@ -12,19 +12,22 @@ public class Drink implements Item {
   private boolean isVisible;
   private boolean isCollectible;
   private List<Item> drinks;
+  private int price;
 
   public Drink(
     String name,
     String description,
     int id,
     boolean isCollectible,
-    boolean isVisible
+    boolean isVisible,
+    int price
   ) {
     this.name = name;
     this.description = description;
     this.id = id;
     this.isCollectible = isCollectible;
     this.isVisible = isVisible;
+    this.price = price;
     this.drinks = new ArrayList<>();
   }
 
@@ -101,5 +104,10 @@ public class Drink implements Item {
   @Override
   public void setCollectible(boolean collectible) {
     this.isCollectible = collectible;
+  }
+
+  @Override
+  public int getPrice() {
+    return price;
   }
 }

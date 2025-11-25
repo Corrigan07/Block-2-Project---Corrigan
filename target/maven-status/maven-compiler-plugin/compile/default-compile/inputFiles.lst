@@ -4,12 +4,17 @@ C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\Command.j
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\CommandWords.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\Drink.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\Food.java
+C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\GameController.java
+C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\GameView.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\GuiMain.java
+C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\GuiMainMVC.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\Item.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\NPC.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\Parser.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\Player.java
+C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\PurchasableItem.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\Room.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\UsableItem.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\ZorkUL.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\ZorkULGame.java
+C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\ZorkULGameModel.java
