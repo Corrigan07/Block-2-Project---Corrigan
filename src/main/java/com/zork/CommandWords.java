@@ -5,31 +5,33 @@ import java.util.Map;
 
 public class CommandWords {
 
-  private Map<String, String> validCommands;
+  private Map<String, CommandType> validCommands;
 
   public CommandWords() {
     validCommands = new HashMap<>();
-    validCommands.put("go", "Move to another room");
-    validCommands.put("quit", "End the game");
-    validCommands.put("help", "Show help");
-    validCommands.put("look", "Look around");
-    validCommands.put("eat", "Eat something");
-    validCommands.put("collect", "Collect an item");
-    validCommands.put("inventory", "Show your inventory");
-    validCommands.put("check", "check something");
-    validCommands.put("talk", "Talk to an NPC");
-    validCommands.put("yes", "respond yes");
-    validCommands.put("no", "respond no");
-    validCommands.put("drop", "Drop an item");
-    validCommands.put("drink", "drink something");
-    validCommands.put("save", "Save your game");
-    validCommands.put("eat", "Eat an item");
-    validCommands.put("open", "Open something");
-    validCommands.put("move", "Move to another room");
+
+    for (CommandType command : CommandType.values()) {
+      if (command != CommandType.UNKNOWN) {
+        validCommands.put(command.getCommand(), command);
+      }
+    }
   }
 
   public boolean isCommand(String commandWord) {
     return validCommands.containsKey(commandWord);
+  }
+
+  public CommandType getCommandType(String commandWord) {
+    if (commandWord == null) {
+      return CommandType.UNKNOWN;
+    }
+
+    CommandType type = validCommands.get(commandWord.toLowerCase());
+    if (type != null) {
+      return type;
+    } else {
+      return CommandType.UNKNOWN;
+    }
   }
 
   public void showAll() {

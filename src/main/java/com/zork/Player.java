@@ -28,17 +28,6 @@ public class Player extends Character {
     inventory.add(key);
   }
 
-  public void move(String direction) {
-    Room currentRoom = getCurrentRoom();
-    Room nextRoom = currentRoom.getExit(direction);
-    if (nextRoom != null) {
-      currentRoom = nextRoom;
-      System.out.println("You moved to: " + currentRoom.getDescription());
-    } else {
-      System.out.println("You can't go that way!");
-    }
-  }
-
   public void pickUpItem(Item item) {
     Room room = getCurrentRoom();
     if (item != null && room != null && room.getItemsInRoom().contains(item)) {

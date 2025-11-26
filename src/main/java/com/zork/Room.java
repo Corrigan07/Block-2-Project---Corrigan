@@ -9,7 +9,7 @@ import java.util.Map;
 public class Room implements Serializable {
 
   private String description;
-  private Map<String, Room> exits; // Map direction to neighboring Room
+  private Map<Direction, Room> exits; // Map direction to neighboring Room
   private final List<Item> items = new ArrayList<>();
   private final List<NPC> npcs = new ArrayList<>();
   private String longDescription;
@@ -28,17 +28,17 @@ public class Room implements Serializable {
     return longDescription;
   }
 
-  public void setExit(String direction, Room neighbor) {
+  public void setExit(Direction direction, Room neighbor) {
     exits.put(direction, neighbor);
   }
 
-  public Room getExit(String direction) {
+  public Room getExit(Direction direction) {
     return exits.get(direction);
   }
 
   public String getExitString() {
     StringBuilder sb = new StringBuilder();
-    for (String direction : exits.keySet()) {
+    for (Direction direction : exits.keySet()) {
       sb.append(direction).append(" ");
     }
     return sb.toString().trim();

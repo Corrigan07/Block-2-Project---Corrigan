@@ -14,7 +14,6 @@ emphasizing exploration and simple command-driven gameplay
 */
 package com.zork;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -96,35 +95,34 @@ public class ZorkULGame {
     // add npcs to rooms
 
     // initialise room exits
-    outside.setExit("north", chipper);
-    outside.setExit("south", car);
-    outside.setExit("west", pub);
-    outside.setExit("east", alleyway);
+    outside.setExit(Direction.NORTH, chipper);
+    outside.setExit(Direction.SOUTH, car);
+    outside.setExit(Direction.WEST, pub);
+    outside.setExit(Direction.EAST, alleyway);
 
-    chipper.setExit("south", outside);
-    chipper.setExit("east", bathroomChipper);
-    chipper.setExit("order", chipperCounter);
+    chipper.setExit(Direction.SOUTH, outside);
+    chipper.setExit(Direction.EAST, bathroomChipper);
+    chipper.setExit(Direction.ORDER, chipperCounter);
 
-    chipperCounter.setExit("back", chipper);
+    chipperCounter.setExit(Direction.BACK, chipper);
+    pub.setExit(Direction.EAST, outside);
+    pub.setExit(Direction.NORTH, bathroomPub);
+    pub.setExit(Direction.ORDER, bar);
 
-    pub.setExit("east", outside);
-    pub.setExit("north", bathroomPub);
-    pub.setExit("order", bar);
+    bar.setExit(Direction.BACK, pub);
 
-    bar.setExit("back", pub);
+    car.setExit(Direction.NORTH, outside);
+    car.setExit(Direction.EAST, house);
 
-    car.setExit("north", outside);
-    car.setExit("east", house);
+    house.setExit(Direction.WEST, outsideHouse);
+    house.setExit(Direction.SOUTH, bathroomHouse);
 
-    house.setExit("west", outsideHouse);
-    house.setExit("south", bathroomHouse);
+    alleyway.setExit(Direction.WEST, outside);
 
-    alleyway.setExit("west", outside);
-
-    bathroomPub.setExit("south", pub);
-    bathroomChipper.setExit("west", chipper);
-    bathroomHouse.setExit("north", house);
-    outsideHouse.setExit("east", house);
+    bathroomPub.setExit(Direction.SOUTH, pub);
+    bathroomChipper.setExit(Direction.WEST, chipper);
+    bathroomHouse.setExit(Direction.NORTH, house);
+    outsideHouse.setExit(Direction.EAST, house);
 
     if (gameChoice.equals("load")) {
       Player loaded = Player.loadPlayerState();
@@ -266,28 +264,28 @@ public class ZorkULGame {
   }
 
   private boolean processCommand(Command command) {
-    String commandWord = command.getCommandWord();
+    CommandType commandType = command.getCommandWord();
 
-    if (commandWord == null) {
+    if (commandType == CommandType.UNKNOWN) {
       System.out.println("I don't understand your command...");
       return false;
     }
 
-    switch (commandWord) {
-      case "help":
+    switch (commandType) {
+      case HELP:
         printHelp();
         break;
-      case "go", "move":
+      case GO, MOVE:
         goRoom(command);
         break;
-      case "quit":
+      case QUIT:
         if (command.hasSecondWord()) {
           System.out.println("Quit what?");
           return false;
         } else {
           return true; // signal to quit
         }
-      case "look":
+      case LOOK:
         Room currentRoom = player.getCurrentRoom();
         System.out.println(currentRoom.getLocationDescription());
         System.out.println(currentRoom.getLongDescription());
@@ -316,7 +314,7 @@ public class ZorkULGame {
           }
         }
         break;
-      case "collect":
+      case COLLECT:
         if (!command.hasSecondWord()) {
           System.out.println("Collect what?");
         } else {
@@ -338,10 +336,10 @@ public class ZorkULGame {
           }
         }
         break;
-      case "inventory":
+      case INVENTORY:
         player.showInventory();
         break;
-      case "check":
+      case CHECK:
         if (!command.hasSecondWord()) {
           System.out.println("Check what?");
         } else {
@@ -357,7 +355,7 @@ public class ZorkULGame {
           }
         }
         break;
-      case "talk":
+      case TALK:
         if (player.getCurrentRoom().getNpcsInRoom().isEmpty()) {
           System.out.println("There is no one here to talk to.");
         } else {
@@ -415,7 +413,7 @@ public class ZorkULGame {
           }
         }
         break;
-      case "drop":
+      case DROP:
         if (!command.hasSecondWord()) {
           System.out.println("Drop what?");
         } else {
@@ -434,7 +432,7 @@ public class ZorkULGame {
           }
         }
         break;
-      case "drink":
+      case DRINK:
         if (!command.hasSecondWord()) {
           System.out.println("Drink what?");
           break;
@@ -480,11 +478,11 @@ public class ZorkULGame {
         // Remove the item after drinking
         player.removeItemFromInventory(itemToDrink);
         break;
-      case "save":
+      case SAVE:
         player.savePlayerState();
         System.out.println("Game saved successfully.");
         break;
-      case "eat":
+      case EAT:
         if (!command.hasSecondWord()) {
           System.out.println("Eat what?");
           break;
@@ -529,7 +527,7 @@ public class ZorkULGame {
         // Remove the item after eating
         player.removeItemFromInventory(itemToEat);
         break;
-      case "open":
+      case OPEN:
         if (!command.hasSecondWord()) {
           System.out.println("Open what?");
           break;
@@ -559,6 +557,9 @@ public class ZorkULGame {
           player.currentRoom.removeItem(boxItem);
         }
 
+        break;
+      case UNKNOWN:
+        System.out.println("I don't understand your command...");
         break;
     }
     return false;
@@ -614,7 +615,15 @@ public class ZorkULGame {
 
     String direction = command.getSecondWord();
 
-    Room nextRoom = player.getCurrentRoom().getExit(direction);
+    Direction dir = Direction.fromString(direction);
+
+    if (dir == Direction.UNKNOWN) {
+      System.out.println("That's not a valid direction!");
+      System.out.println("Try: north, south, east, west, order, or back");
+      return;
+    }
+
+    Room nextRoom = player.getCurrentRoom().getExit(dir);
 
     if (nextRoom == null) {
       System.out.println("There is no door!");

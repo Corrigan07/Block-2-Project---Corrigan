@@ -31,11 +31,8 @@ public class Parser {
       }
     }
 
-    if (commands.isCommand(word1)) {
-      return new Command(word1, word2);
-    } else {
-      return new Command(null, word2);
-    }
+    CommandType commandType = commands.getCommandType(word1);
+    return new Command(commandType, word2);
   }
 
   public void showCommands() {

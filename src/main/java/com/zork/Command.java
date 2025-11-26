@@ -2,16 +2,16 @@ package com.zork;
 
 public class Command {
 
-  private String commandWord;
+  private CommandType command;
   private String secondWord;
 
-  public Command(String firstWord, String secondWord) {
-    this.commandWord = firstWord;
+  public Command(CommandType firstWord, String secondWord) {
+    this.command = firstWord;
     this.secondWord = secondWord;
   }
 
-  public String getCommandWord() {
-    return commandWord;
+  public CommandType getCommandWord() {
+    return command;
   }
 
   public String getSecondWord() {
@@ -19,7 +19,7 @@ public class Command {
   }
 
   public boolean isUnknown() {
-    return commandWord == null;
+    return command == CommandType.UNKNOWN;
   }
 
   public boolean hasSecondWord() {
