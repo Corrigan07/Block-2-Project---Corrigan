@@ -28,6 +28,7 @@ public class ZorkULGame {
   private Drink pint, water;
   private Food chips, burger, kebab;
   private ArrayList<PurchasableItem> menu = new ArrayList<>();
+  private DiceGame diceGame;
 
   public ZorkULGame() {
     Scanner scanner = new Scanner(System.in);
@@ -39,6 +40,7 @@ public class ZorkULGame {
     createNPCs();
     createItems();
     parser = new Parser();
+    diceGame = new DiceGame();
   }
 
   private void createRooms() {
@@ -91,8 +93,6 @@ public class ZorkULGame {
       "at the chipper counter",
       "Your mouth is watering at the though of a curry cheese chip."
     );
-
-    // add npcs to rooms
 
     // initialise room exits
     outside.setExit(Direction.NORTH, chipper);
@@ -181,7 +181,7 @@ public class ZorkULGame {
 
     Box<Food> box = new Box<>("box", "A takeaway box", 3, false, true);
     box.setValue(chips);
-    chipperCounter.addItem(box);
+    chipper.addItem(box);
     Box<Drink> waterBox = new Box<>(
       "crate",
       "A crate of water",
@@ -190,7 +190,7 @@ public class ZorkULGame {
       true
     );
     waterBox.setValue(water);
-    chipperCounter.addItem(waterBox);
+    chipper.addItem(waterBox);
     menu.add(water);
     burger = new Food("burger", "A juicy beef burger.", 3, true, true, 6);
     menu.add(burger);
@@ -216,11 +216,14 @@ public class ZorkULGame {
       List.of(
         "You'll surely stay out for a while tonight, you've been under that woman's thumb for weeks now",
         "United are playing like!",
-        "Anyway, go get yourself a pint there!"
+        "Anyway, go get yourself a pint there!",
+        "Maybe some other time",
+        "Better luck next time!"
       ),
       List.of(
         "Well lad, what's the craic?",
-        "Thank god it's Friday that's for sure!"
+        "Thank god it's Friday that's for sure!",
+        "Fancy a game of dice?"
       )
     );
     pub.addNpc(lad);
@@ -362,7 +365,7 @@ public class ZorkULGame {
           NPC npc = player.getCurrentRoom().getNpcsInRoom().get(0);
           System.out.println("You talk to " + npc.getName() + ":");
           npc.welcomePlayer();
-          String response = parser.getReader().nextLine();
+          String response = parser.getInput();
 
           if (npc.getName().equals("John the Bartender")) {
             if ("yes".equalsIgnoreCase(response)) {
@@ -389,8 +392,10 @@ public class ZorkULGame {
                 player.addItemToInventory(chips);
                 System.out.println("\"" + npc.getDialogueLines().get(1) + "\"");
                 System.out.println("\"" + npc.getDialogueLines().get(2) + "\"");
-                String response2 = parser.getReader().nextLine();
-                if (!tryPurchaseFromMenu(response2, player, npc)) {
+                String response2 = parser.getInput();
+                if ("no".equalsIgnoreCase(response2)) {
+                  System.out.println("\"See you around so!\"");
+                } else if (!tryPurchaseFromMenu(response2, player, npc)) {
                   System.out.println("\"I don't understand your response.\"");
                 }
               } else {
@@ -401,7 +406,7 @@ public class ZorkULGame {
             } else if ("no".equalsIgnoreCase(response)) {
               System.out.println("\"Maybe next time!\"");
               System.out.println("\"" + npc.getDialogueLines().get(2) + "\"");
-              String reply = parser.getReader().nextLine();
+              String reply = parser.getInput();
               if ("no".equalsIgnoreCase(reply)) {
                 System.out.println("\"See you around so!\"");
               } else if (!tryPurchaseFromMenu(reply, player, npc)) {
@@ -558,6 +563,20 @@ public class ZorkULGame {
         }
 
         break;
+      case PLAY:
+        if (!player.getCurrentRoom().equals(pub)) {
+          System.out.println("You can only play the dice game in the pub.");
+        } else if (!command.hasSecondWord()) {
+          System.out.println("Play what?");
+        } else {
+          String gameToPlay = command.getSecondWord();
+          if (gameToPlay.equalsIgnoreCase("dice")) {
+            playDiceGame(pub.getNpcsInRoom().get(0));
+          } else {
+            System.out.println("Don't know that game.");
+          }
+        }
+        break;
       case UNKNOWN:
         System.out.println("I don't understand your command...");
         break;
@@ -658,6 +677,61 @@ public class ZorkULGame {
       }
     }
     return false; // Item not found in menu
+  }
+
+  private void playDiceGame(NPC bob) {
+    System.out.println("\n" + "=".repeat(50));
+    System.out.println("DICE GAME with Bob");
+    System.out.println("=".repeat(50));
+    System.out.println("Rules: Highest roll wins. You both roll 2 dice.");
+    System.out.println(
+      "Bet: " + diceGame.getMinBet() + " to " + diceGame.getMaxBet()
+    );
+    System.out.println("Your money: " + player.getMoney());
+
+    boolean validBet = false;
+    int result = 0;
+
+    while (!validBet) {
+      System.out.println(
+        "\nHow much do you want to bet? (or 'quit' to cancel)"
+      );
+      String betInput = parser.getInput().trim();
+
+      if (
+        betInput.equalsIgnoreCase("quit") || betInput.equalsIgnoreCase("cancel")
+      ) {
+        System.out.println("Bob: " + bob.getDialogueLines().get(3));
+        return;
+      }
+
+      try {
+        int betAmount = Integer.parseInt(betInput);
+        result = diceGame.playRound(betAmount, player.getMoney());
+
+        if (result != -999) {
+          validBet = true;
+        }
+      } catch (NumberFormatException e) {
+        System.out.println("Invalid bet amount! Please enter a number.");
+      }
+    }
+
+    // Process the result after valid bet
+    if (result > 0) {
+      player.addMoney(result);
+      System.out.println("You win! You gain " + result + ".");
+    } else if (result < 0) {
+      player.removeMoney(Math.abs(result));
+      System.out.println("Bob: " + bob.getDialogueLines().get(4));
+      System.out.println("You lose " + result + ".");
+    } else if (result == 0) {
+      System.out.println("It's a draw! No money won or lost.");
+    }
+
+    System.out.println("Your current money: " + player.getMoney());
+    System.out.println("\nType 'play dice' to play again!");
+    System.out.println("=".repeat(50) + "\n");
   }
 
   public static void main(String[] args) {

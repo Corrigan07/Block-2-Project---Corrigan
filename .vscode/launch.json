@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "GuiMain",
+            "request": "launch",
+            "mainClass": "com.zork.GuiMain",
+            "projectName": "JavaZork"
+        },
+        {
+            "type": "java",
+            "name": "Run ZorkULGame",
+            "request": "launch",
+            "mainClass": "com.zork.ZorkULGame",
+            "projectName": "JavaZork",
+            "console": "integratedTerminal"
+        }
+    ]
+}
