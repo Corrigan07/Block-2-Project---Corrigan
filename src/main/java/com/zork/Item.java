@@ -26,14 +26,6 @@ public interface Item extends Serializable {
 
   public void setName(String name);
 
-  public String getLocation();
-
-  public void setLocation(String location);
-
-  public int getId();
-
-  public void setId(int id);
-
   public boolean isVisible();
 
   public void setVisible(boolean visible);

@@ -4,6 +4,7 @@ import java.io.*;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Player extends Character {
 
@@ -33,7 +34,7 @@ public class Player extends Character {
     this.currentTime = currentTime;
     this.startingMoney = startingMoney;
     this.hasKnocked = false;
-    Item key = new UsableItem("key", "key to the house", 2, true, true, true);
+    Item key = new UsableItem("key", "key to the house", true, true, true);
     inventory.add(key);
   }
 
@@ -109,7 +110,7 @@ public class Player extends Character {
     if (amount > 0 && amount <= money) {
       money -= amount;
       System.out.println(
-        "You spent " + amount + " money. Remaining money: " + money
+        "You lose " + amount + " money. Remaining money: " + money
       );
     } else {
       System.out.println("Insufficient funds.");
@@ -242,5 +243,47 @@ public class Player extends Character {
       }
     }
     return false;
+  }
+
+  public Weapon getBestWeapon() {
+    Weapon bestWeapon = null;
+    int highestDamage = 0;
+
+    for (Item item : inventory) {
+      if (item instanceof Weapon) {
+        Weapon weapon = (Weapon) item;
+        if (weapon.getDamage() > highestDamage) {
+          highestDamage = weapon.getDamage();
+          bestWeapon = weapon;
+        }
+      }
+    }
+
+    return bestWeapon;
+  }
+
+  public void dropRandomItems(int count, Room targetRoom) {
+    if (inventory.isEmpty() || count <= 0) {
+      return;
+    }
+
+    // Create list of items to potentially drop
+    ArrayList<Item> droppableItems = new ArrayList<>(inventory);
+
+    // Ensure we don't try to drop more items than player has
+    int actualDropCount = Math.min(count, droppableItems.size());
+
+    // Shuffle and drop random items
+    Random random = new Random();
+    for (int i = 0; i < actualDropCount; i++) {
+      if (droppableItems.isEmpty()) break;
+
+      int randomIndex = random.nextInt(droppableItems.size());
+      Item itemToDrop = droppableItems.get(randomIndex);
+
+      targetRoom.addItem(itemToDrop);
+      inventory.remove(itemToDrop);
+      droppableItems.remove(randomIndex);
+    }
   }
 }

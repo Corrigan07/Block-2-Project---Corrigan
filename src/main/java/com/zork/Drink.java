@@ -7,8 +7,6 @@ public class Drink implements PurchasableItem {
 
   private String name;
   private String description;
-  private String location;
-  private int id;
   private boolean isVisible;
   private boolean isCollectible;
   private List<Item> drinks;
@@ -17,14 +15,12 @@ public class Drink implements PurchasableItem {
   public Drink(
     String name,
     String description,
-    int id,
     boolean isCollectible,
     boolean isVisible,
     int price
   ) {
     this.name = name;
     this.description = description;
-    this.id = id;
     this.isCollectible = isCollectible;
     this.isVisible = isVisible;
     this.price = price;
@@ -64,26 +60,6 @@ public class Drink implements PurchasableItem {
   @Override
   public void setName(String name) {
     this.name = name;
-  }
-
-  @Override
-  public String getLocation() {
-    return null;
-  }
-
-  @Override
-  public void setLocation(String location) {
-    this.location = location;
-  }
-
-  @Override
-  public int getId() {
-    return id;
-  }
-
-  @Override
-  public void setId(int id) {
-    this.id = id;
   }
 
   @Override

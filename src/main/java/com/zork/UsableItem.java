@@ -4,8 +4,6 @@ public class UsableItem implements Item {
 
   private String name;
   private String description;
-  private String location;
-  private int id;
   private boolean isVisible;
   private boolean isCollectible;
   private boolean isUsable;
@@ -13,14 +11,12 @@ public class UsableItem implements Item {
   public UsableItem(
     String name,
     String description,
-    int id,
     boolean isCollectible,
     boolean isVisible,
     boolean isUsable
   ) {
     this.name = name;
     this.description = description;
-    this.id = id;
     this.isCollectible = isCollectible;
     this.isVisible = isVisible;
     this.isUsable = isUsable;
@@ -54,26 +50,6 @@ public class UsableItem implements Item {
   @Override
   public void setName(String name) {
     this.name = name;
-  }
-
-  @Override
-  public String getLocation() {
-    return location;
-  }
-
-  @Override
-  public void setLocation(String location) {
-    this.location = location;
-  }
-
-  @Override
-  public int getId() {
-    return id;
-  }
-
-  @Override
-  public void setId(int id) {
-    this.id = id;
   }
 
   @Override

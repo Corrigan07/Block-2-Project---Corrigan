@@ -27,9 +27,11 @@ public class ZorkULGame {
   private Room outside, chipper, pub, cab, house, alleyway, bathroomPub, bathroomChipper, outsideHouse, bar, chipperCounter;
   private Drink pint, water;
   private Food chips, burger, kebab;
+  private Weapon bottle, hurl;
   private ArrayList<PurchasableItem> menu = new ArrayList<>();
   private DiceGame diceGame;
-  private NPC bartender, lad, chipperOwner, Billy, cabDriver, wife;
+  private NPC bartender, lad, chipperOwner, billy, cabDriver, wife;
+  private boolean billyEncountered = false;
 
   public ZorkULGame() {
     Scanner scanner = new Scanner(System.in);
@@ -199,44 +201,43 @@ public class ZorkULGame {
   }
 
   public void createItems() {
-    pint = new Drink("pint", "A refreshing pint of beer.", 1, false, true, 5);
+    pint = new Drink("pint", "A refreshing pint of beer.", false, true, 5);
     bar.addItem(pint);
     water = new Drink(
       "water",
       "A bottle of water to keep you hydrated.",
-      1,
       false,
       true,
       2
     );
-    chipperCounter.addItem(water);
-    chips = new Food(
-      "chips",
-      "A delicious serving of chips.",
-      2,
-      false,
-      true,
-      3
-    );
-    chipperCounter.addItem(chips);
-    menu.add(chips);
-
-    Box<Food> box = new Box<>("box", "A takeaway box", 3, false, true);
-    box.setValue(chips);
-    chipper.addItem(box);
-    Box<Drink> waterBox = new Box<>(
-      "crate",
-      "A crate of water",
-      4,
+    bottle = new Weapon("bottle", "A glass bottle", 10, true, true);
+    Box<Weapon> bottleBox = new Box<>(
+      "box",
+      "A box containing a bottle",
       false,
       true
     );
+    bottleBox.setValue(bottle);
+    bathroomPub.addItem(bottleBox);
+
+    chipperCounter.addItem(water);
+    chips = new Food("chips", "A delicious serving of chips.", false, true, 3);
+    chipperCounter.addItem(chips);
+    menu.add(chips);
+
+    hurl = new Weapon("hurl", "A hurling stick", 15, true, true);
+    chipper.addItem(hurl);
+
+    Box<Food> box = new Box<>("box", "A takeaway box", false, true);
+    box.setValue(chips);
+    chipper.addItem(box);
+    Box<Drink> waterBox = new Box<>("crate", "A crate of water", false, true);
     waterBox.setValue(water);
     chipper.addItem(waterBox);
     menu.add(water);
-    burger = new Food("burger", "A juicy beef burger.", 3, true, true, 6);
+    burger = new Food("burger", "A juicy beef burger.", true, true, 6);
     menu.add(burger);
-    kebab = new Food("kebab", "A lovely doner kebab.", 4, true, true, 7);
+    kebab = new Food("kebab", "A lovely doner kebab.", true, true, 7);
     menu.add(kebab);
   }
 
@@ -285,8 +286,8 @@ public class ZorkULGame {
     );
     chipperCounter.addNpc(chipperOwner);
 
-    Billy = new NPC("Billy", alleyway, List.of("..."), List.of("..."));
-    alleyway.addNpc(Billy);
+    billy = new NPC("Billy", alleyway, List.of("..."), List.of("..."));
+    alleyway.addNpc(billy);
 
     cabDriver = new NPC(
       "Steve the Cab Driver",
@@ -772,22 +773,14 @@ public class ZorkULGame {
         }
       }
 
-      if (nextRoom.isLocked()) {
-        System.out.println("The door is locked!");
-        if (!player.hasKey()) {
-          System.out.println(
-            "You must've dropped your key! Maybe try to \"knock\"?"
-          );
-          return;
-        } else {
-          System.out.println("You use the key to unlock the door.");
-          player.setCurrentRoom(nextRoom);
-        }
-      }
-
       player.setCurrentRoom(nextRoom);
       System.out.println(player.getCurrentRoom().getLocationDescription());
       System.out.println(player.getCurrentRoom().getLongDescription());
+
+      if (nextRoom == alleyway && !billyEncountered) {
+        billyFight();
+        billyEncountered = true;
+      }
 
       if (isMajorLocation(previousRoom) && isMajorLocation(nextRoom)) {
         player.incrementTime(10);
@@ -885,6 +878,93 @@ public class ZorkULGame {
       room == cab ||
       room == house
     );
+  }
+
+  private void billyFight() {
+    System.out.println("\n" + "=".repeat(50));
+    System.out.println("A shadowy figure steps out from the darkness...");
+    System.out.println("It's Billy! He's blocking your path!");
+    System.out.println("=".repeat(50));
+
+    player.incrementTime(2);
+
+    Weapon weapon = player.getBestWeapon();
+
+    if (weapon != null) {
+      // Player has a weapon - reduced robbery
+      System.out.println("\nYou pull out your " + weapon.getName() + "!");
+      if (weapon.equals(bottle)) {
+        System.out.println("You smash the bottle off the wall!");
+      }
+      System.out.println("Billy eyes it nervously...");
+
+      int damage = weapon.getDamage();
+      int moneyStolen;
+      int itemsToDrop;
+
+      if (damage >= 15) {
+        moneyStolen = 10;
+        itemsToDrop = 2;
+        System.out.println(
+          "\"Alright, alright! Just give me a bit and I'll leave you alone!\""
+        );
+      } else {
+        moneyStolen = 20;
+        itemsToDrop = 3;
+        System.out.println(
+          "\"That's not gonna stop me, but I'll go easy on ya!\""
+        );
+      }
+
+      int actualStolen = Math.min(player.getMoney(), moneyStolen);
+      if (actualStolen > 0) {
+        System.out.println(
+          "\nBilly snatches " + actualStolen + " from your wallet!"
+        );
+        player.removeMoney(actualStolen);
+      }
+
+      player.dropRandomItems(itemsToDrop, alleyway);
+      System.out.println(
+        "Billy grabs some of your items and tosses them on the ground!"
+      );
+      System.out.println(
+        "\"Consider yourself lucky!\" Billy disappears into the shadows."
+      );
+    } else {
+      // No weapon
+      System.out.println("\nYou have nothing to defend yourself with!");
+      System.out.println("Billy shoves you against the wall...");
+
+      int moneyStolen = Math.min(player.getMoney(), 30);
+      if (moneyStolen > 0) {
+        System.out.println(
+          "\nBilly empties your wallet! " + moneyStolen + " stolen!"
+        );
+        player.removeMoney(moneyStolen);
+      }
+
+      // Drop all items
+      int itemCount = player.getInventory().size();
+      if (itemCount > 0) {
+        player.dropRandomItems(itemCount, alleyway);
+        System.out.println(
+          "Billy rummages through your pockets and throws everything on the ground!"
+        );
+      }
+
+      System.out.println(
+        "\n\"That'll teach ya to wander into my alley unarmed!\""
+      );
+      System.out.println("Billy runs off laughing...");
+    }
+
+    System.out.println(
+      "\nYou dust yourself off. Your items are scattered on the ground here."
+    );
+    System.out.println("=".repeat(50) + "\n");
+
+    alleyway.removeNpc(billy);
   }
 
   private void ending() {

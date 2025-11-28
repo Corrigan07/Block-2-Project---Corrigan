@@ -79,6 +79,10 @@ public class Room implements Serializable {
     npcs.add(npc);
   }
 
+  public void removeNpc(NPC npc) {
+    npcs.remove(npc);
+  }
+
   public boolean isDark() {
     return isDark;
   }
