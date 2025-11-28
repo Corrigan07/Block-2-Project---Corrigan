@@ -16,6 +16,7 @@ public enum CommandType {
   OPEN("open"),
   MOVE("move"),
   PLAY("play"),
+  KNOCK("knock"),
   UNKNOWN("?");
 
   private final String command;

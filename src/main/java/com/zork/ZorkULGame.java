@@ -24,11 +24,12 @@ public class ZorkULGame {
   private Player player;
   private String gameChoice;
   private String playerName;
-  private Room outside, chipper, pub, car, house, alleyway, bathroomPub, bathroomHouse, bathroomChipper, outsideHouse, bar, chipperCounter;
+  private Room outside, chipper, pub, cab, house, alleyway, bathroomPub, bathroomChipper, outsideHouse, bar, chipperCounter;
   private Drink pint, water;
   private Food chips, burger, kebab;
   private ArrayList<PurchasableItem> menu = new ArrayList<>();
   private DiceGame diceGame;
+  private NPC bartender, lad, chipperOwner, Billy, cabDriver, wife;
 
   public ZorkULGame() {
     Scanner scanner = new Scanner(System.in);
@@ -47,56 +48,75 @@ public class ZorkULGame {
     // create rooms
     outside = new Room(
       "in the middle of town",
-      "You are outside on your favourite street, with the pub to your west and Mario's Chipper to your north."
+      "You are outside on your favourite street, with the pub to your west and Mario's Chipper to your north.",
+      false,
+      false
     );
     chipper = new Room(
       "in the Mario's Chipper",
-      "Not the tidiest place, but the chips are the best in town."
+      "Not the tidiest place, but the chips are the best in town.",
+      false,
+      false
     );
     pub = new Room(
       "in Corrigan's Bar",
-      "The place is hopping with Friday night football on the telly."
+      "The place is hopping with Friday night football on the telly.",
+      false,
+      false
     );
-    car = new Room(
+    cab = new Room(
       "in a cab",
-      "The driver seems friendly but his car could use a clean."
+      "The driver seems friendly but his car could use a clean.",
+      false,
+      false
     );
     house = new Room(
       "finally home",
-      "Now the fear sets in, will she be happy with you?"
+      "Now the fear sets in, will she be happy with you?",
+      false,
+      true
     );
     alleyway = new Room(
       "in a dark and creepy alleyway",
-      "What could you possibly want here?"
+      "What could you possibly want here?",
+      true,
+      false
     );
     bathroomPub = new Room(
       "in a bathroom",
-      "A few reasons to be here, but none of them good."
+      "A few reasons to be here, but none of them good.",
+      false,
+      false
     );
-    bathroomHouse = new Room(
-      "in a bathroom",
-      "The bathroom at home, thank god."
-    );
+
     bathroomChipper = new Room(
       "in a bathroom",
-      "You really should have gone before you left the pub, this is horrible."
+      "You really should have gone before you left the pub, this is horrible.",
+      false,
+      false
     );
     outsideHouse = new Room(
       "outside the house",
-      "You better sneak in and pray herself is asleep."
+      "You better sneak in and pray herself is asleep.",
+      true,
+      false
     );
     bar = new Room(
       "at the bar counter",
-      "Ready to order a pint or two or three or four..."
+      "Ready to order a pint or two or three or four...",
+      false,
+      false
     );
     chipperCounter = new Room(
       "at the chipper counter",
-      "Your mouth is watering at the though of a curry cheese chip."
+      "Your mouth is watering at the though of a curry cheese chip.",
+      false,
+      false
     );
 
     // initialise room exits
     outside.setExit(Direction.NORTH, chipper);
-    outside.setExit(Direction.SOUTH, car);
+    outside.setExit(Direction.SOUTH, cab);
     outside.setExit(Direction.WEST, pub);
     outside.setExit(Direction.EAST, alleyway);
 
@@ -111,17 +131,12 @@ public class ZorkULGame {
 
     bar.setExit(Direction.BACK, pub);
 
-    car.setExit(Direction.NORTH, outside);
-    car.setExit(Direction.EAST, house);
-
-    house.setExit(Direction.WEST, outsideHouse);
-    house.setExit(Direction.SOUTH, bathroomHouse);
+    cab.setExit(Direction.NORTH, outside);
 
     alleyway.setExit(Direction.WEST, outside);
 
     bathroomPub.setExit(Direction.SOUTH, pub);
     bathroomChipper.setExit(Direction.WEST, chipper);
-    bathroomHouse.setExit(Direction.NORTH, house);
     outsideHouse.setExit(Direction.EAST, house);
 
     if (gameChoice.equals("load")) {
@@ -141,18 +156,45 @@ public class ZorkULGame {
         System.out.println("No saved game found. Starting a new game.");
         System.out.println("Hello there, what is your name?");
         playerName = new Scanner(System.in).nextLine();
-        player = new Player(playerName, outside, 100, 100, 0);
+        player = new Player(
+          playerName,
+          outside,
+          100,
+          100,
+          0,
+          (18 * 60),
+          100,
+          false
+        );
       }
     } else if (gameChoice.equals("new")) {
       System.out.println("Hello there, what is your name?");
       playerName = new Scanner(System.in).nextLine();
-      player = new Player(playerName, outside, 100, 100, 0);
+      player = new Player(
+        playerName,
+        outside,
+        100,
+        100,
+        0,
+        (18 * 60),
+        100,
+        false
+      );
     } else {
       // create the player character and start outside
       System.out.println("Unknown command. Starting a new game.");
       System.out.println("Hello there, what is your name?");
       playerName = new Scanner(System.in).nextLine();
-      player = new Player(playerName, outside, 100, 100, 0);
+      player = new Player(
+        playerName,
+        outside,
+        100,
+        100,
+        0,
+        (18 * 60),
+        100,
+        false
+      );
     }
   }
 
@@ -199,7 +241,7 @@ public class ZorkULGame {
   }
 
   public void createNPCs() {
-    NPC bartender = new NPC(
+    bartender = new NPC(
       "John the Bartender",
       pub,
       List.of(
@@ -210,25 +252,25 @@ public class ZorkULGame {
     );
     bar.addNpc(bartender);
 
-    NPC lad = new NPC(
+    lad = new NPC(
       "Bob",
       pub,
       List.of(
         "You'll surely stay out for a while tonight, you've been under that woman's thumb for weeks now",
         "United are playing like!",
         "Anyway, go get yourself a pint there!",
+        "Fancy a game of dice? Type 'play dice' to challenge me!",
         "Maybe some other time",
         "Better luck next time!"
       ),
       List.of(
         "Well lad, what's the craic?",
-        "Thank god it's Friday that's for sure!",
-        "Fancy a game of dice?"
+        "Thank god it's Friday that's for sure!"
       )
     );
     pub.addNpc(lad);
 
-    NPC chipperOwner = new NPC(
+    chipperOwner = new NPC(
       "Mario",
       chipper,
       List.of(
@@ -242,6 +284,25 @@ public class ZorkULGame {
       )
     );
     chipperCounter.addNpc(chipperOwner);
+
+    Billy = new NPC("Billy", alleyway, List.of("..."), List.of("..."));
+    alleyway.addNpc(Billy);
+
+    cabDriver = new NPC(
+      "Steve the Cab Driver",
+      cab,
+      List.of("Hop in mate, I'll get you home safe and sound."),
+      List.of("Hello there!")
+    );
+    cab.addNpc(cabDriver);
+
+    wife = new NPC(
+      "Your Wife",
+      house,
+      List.of("Oh thank you!"),
+      List.of("Well look who it is. How are you?")
+    );
+    house.addNpc(wife);
   }
 
   public void play() {
@@ -353,6 +414,10 @@ public class ZorkULGame {
             );
           } else if (checkWhat.equalsIgnoreCase("health")) {
             System.out.println("You have " + player.getHealth() + " health.");
+          } else if (checkWhat.equalsIgnoreCase("time")) {
+            System.out.println(
+              "Current time: " + player.getCurrentTimeFormatted()
+            );
           } else {
             System.out.println("You can't check that!");
           }
@@ -365,15 +430,16 @@ public class ZorkULGame {
           NPC npc = player.getCurrentRoom().getNpcsInRoom().get(0);
           System.out.println("You talk to " + npc.getName() + ":");
           npc.welcomePlayer();
+          player.incrementTime(4);
           String response = parser.getInput();
 
           if (npc.getName().equals("John the Bartender")) {
             if ("yes".equalsIgnoreCase(response)) {
-              System.out.println(npc.getDialogueLines().get(0));
+              npc.talk(0, 0);
               if (player.getMoney() >= 5) {
                 player.removeMoney(5);
                 player.addItemToInventory(pint);
-                System.out.println("\"" + npc.getDialogueLines().get(1) + "\"");
+                npc.talk(1, 1);
               } else {
                 System.out.println(
                   "You don't have enough money to buy a pint."
@@ -390,8 +456,7 @@ public class ZorkULGame {
               if (player.getMoney() >= chips.getPrice()) {
                 player.removeMoney(chips.getPrice());
                 player.addItemToInventory(chips);
-                System.out.println("\"" + npc.getDialogueLines().get(1) + "\"");
-                System.out.println("\"" + npc.getDialogueLines().get(2) + "\"");
+                npc.talk(1, 3);
                 String response2 = parser.getInput();
                 if ("no".equalsIgnoreCase(response2)) {
                   System.out.println("\"See you around so!\"");
@@ -405,7 +470,7 @@ public class ZorkULGame {
               }
             } else if ("no".equalsIgnoreCase(response)) {
               System.out.println("\"Maybe next time!\"");
-              System.out.println("\"" + npc.getDialogueLines().get(2) + "\"");
+              npc.talk(2, 3);
               String reply = parser.getInput();
               if ("no".equalsIgnoreCase(reply)) {
                 System.out.println("\"See you around so!\"");
@@ -414,7 +479,22 @@ public class ZorkULGame {
               }
             }
           } else if (npc.getName().equals("Bob")) {
-            npc.talk();
+            npc.talk(0, 4);
+          } else if (npc.getName().equals("Steve the Cab Driver")) {
+            npc.talk(0, 0);
+            System.out.println("Do you want to go home? (yes/no)");
+            String cabResponse = parser.getInput();
+            if ("yes".equalsIgnoreCase(cabResponse)) {
+              System.out.println("You get into the cab.");
+              player.setCurrentRoom(outsideHouse);
+              player.incrementTime(15);
+              System.out.println("The cab drops you off outside your house.");
+              System.out.println(player.getCurrentRoom().getLongDescription());
+            } else if ("no".equalsIgnoreCase(cabResponse)) {
+              System.out.println("You decide to stay out a bit longer.");
+            } else {
+              System.out.println("I don't understand your response.");
+            }
           }
         }
         break;
@@ -475,9 +555,11 @@ public class ZorkULGame {
           System.out.println("You drank a pint.");
           player.removeHealth(5);
           player.incrementPintCount();
+          player.incrementTime(5);
         } else {
           System.out.println("You drank " + itemToDrink.getName() + ".");
           player.decrementPintCount();
+          player.incrementTime(2);
         }
 
         // Remove the item after drinking
@@ -527,6 +609,7 @@ public class ZorkULGame {
         else {
           System.out.println("You ate " + itemToEat.getName() + ".");
           player.addHealth(5);
+          player.incrementTime(3);
         }
 
         // Remove the item after eating
@@ -577,6 +660,20 @@ public class ZorkULGame {
           }
         }
         break;
+      case KNOCK:
+        if (player.currentRoom != outsideHouse) {
+          System.out.println("There is nothing to knock here.");
+        } else {
+          System.out.println("You knock on the door...");
+          player.incrementTime(1);
+          player.setHasKnocked(true);
+          System.out.println("Your wife opens the door and greets you.");
+          wife.welcomePlayer();
+          player.setCurrentRoom(house);
+          ending();
+          System.exit(0);
+        }
+        break;
       case UNKNOWN:
         System.out.println("I don't understand your command...");
         break;
@@ -595,9 +692,9 @@ public class ZorkULGame {
       System.out.println(
         "You are in Corrigan's Bar. Hooray! You should stay here for a good while and support your local"
       );
-    } else if (player.getCurrentRoom() == car) {
+    } else if (player.getCurrentRoom() == cab) {
       System.out.println(
-        "You are in a cab. It would be smart to get out and go to your house now."
+        "You are outside a cab. If you want to go home you should talk to the taxi driver."
       );
     } else if (player.getCurrentRoom() == house) {
       System.out.println(
@@ -612,10 +709,6 @@ public class ZorkULGame {
     } else if (player.getCurrentRoom() == bathroomChipper) {
       System.out.println(
         "You are in a bathroom. You can go west to Mario's Chipper."
-      );
-    } else if (player.getCurrentRoom() == bathroomHouse) {
-      System.out.println(
-        "You are in a bathroom. You can go north to your house."
       );
     } else if (player.getCurrentRoom() == outsideHouse) {
       System.out.println(
@@ -643,13 +736,62 @@ public class ZorkULGame {
     }
 
     Room nextRoom = player.getCurrentRoom().getExit(dir);
+    Room previousRoom = player.getCurrentRoom();
 
     if (nextRoom == null) {
       System.out.println("There is no door!");
     } else {
+      if (previousRoom == outsideHouse && nextRoom == house) {
+        if (nextRoom.isLocked()) {
+          System.out.println("The door is locked!");
+          if (!player.hasKey()) {
+            System.out.println(
+              "You must've dropped your key! Maybe try to \"knock\"?"
+            );
+            return;
+          } else {
+            System.out.println("You quietly unlock the door with your key...");
+            player.setCurrentRoom(nextRoom);
+            System.out.println(
+              player.getCurrentRoom().getLocationDescription()
+            );
+            System.out.println(player.getCurrentRoom().getLongDescription());
+
+            ending();
+            System.exit(0);
+            return;
+          }
+        } else {
+          player.setCurrentRoom(nextRoom);
+          System.out.println(player.getCurrentRoom().getLocationDescription());
+          System.out.println(player.getCurrentRoom().getLongDescription());
+
+          ending();
+          System.exit(0);
+          return;
+        }
+      }
+
+      if (nextRoom.isLocked()) {
+        System.out.println("The door is locked!");
+        if (!player.hasKey()) {
+          System.out.println(
+            "You must've dropped your key! Maybe try to \"knock\"?"
+          );
+          return;
+        } else {
+          System.out.println("You use the key to unlock the door.");
+          player.setCurrentRoom(nextRoom);
+        }
+      }
+
       player.setCurrentRoom(nextRoom);
       System.out.println(player.getCurrentRoom().getLocationDescription());
       System.out.println(player.getCurrentRoom().getLongDescription());
+
+      if (isMajorLocation(previousRoom) && isMajorLocation(nextRoom)) {
+        player.incrementTime(10);
+      }
     }
   }
 
@@ -730,8 +872,76 @@ public class ZorkULGame {
     }
 
     System.out.println("Your current money: " + player.getMoney());
+    player.incrementTime(15);
     System.out.println("\nType 'play dice' to play again!");
     System.out.println("=".repeat(50) + "\n");
+  }
+
+  private boolean isMajorLocation(Room room) {
+    return (
+      room == outside ||
+      room == chipper ||
+      room == pub ||
+      room == cab ||
+      room == house
+    );
+  }
+
+  private void ending() {
+    System.out.println("\n" + "=".repeat(50));
+    System.out.println("You encounter Herself...");
+    System.out.println("=".repeat(50));
+
+    boolean hasFood = false;
+    for (Item item : player.getInventory()) {
+      if (item instanceof Food && item != kebab) {
+        hasFood = true;
+        break;
+      }
+    }
+
+    boolean hasKey = false;
+    for (Item item : player.getInventory()) {
+      if (item.getName().equalsIgnoreCase("key")) {
+        hasKey = true;
+        break;
+      }
+    }
+
+    WifeRequirements wifeReq = new WifeRequirements(
+      hasFood,
+      hasKey,
+      player.hasKnocked(),
+      player.getPintCount(),
+      player.getMoney(),
+      player.getCurrentTime(),
+      player.getHealth()
+    );
+
+    System.out.println(wifeReq.getScoreBreakdown());
+    System.out.println(wifeReq.getEndingMessage());
+
+    System.out.println("=".repeat(50) + "\n");
+    if (wifeReq.isWifeHappy()) {
+      System.out.println(
+        "Congratulations! You have successfully pleased your wife and avoided total war."
+      );
+    } else {
+      System.out.println(
+        "Oh no! Your wife is not happy. Better find a pillow and blanket for the couch tonight."
+      );
+    }
+
+    System.out.println("=".repeat(50));
+    System.out.println("\n=== GAME OVER ===");
+    System.out.println("Thanks for playing The Usual!");
+    System.out.println("\nFinal Stats:");
+    System.out.println("- Pints drunk: " + player.getPintCount());
+    System.out.println("- Money left: " + player.getMoney());
+    System.out.println("- Health: " + player.getHealth());
+    System.out.println(
+      "- Time arrived home: " + player.getCurrentTimeFormatted()
+    );
   }
 
   public static void main(String[] args) {

@@ -11,19 +11,28 @@ public class Player extends Character {
   private int money;
   private int health;
   private int pintCount;
+  private int currentTime;
+  private int startingMoney;
+  private boolean hasKnocked;
 
   public Player(
     String name,
     Room startingRoom,
-    int startingMoney,
+    int money,
     int health,
-    int pintCount
+    int pintCount,
+    int currentTime,
+    int startingMoney,
+    boolean hasKnocked
   ) {
     super(name, startingRoom);
-    this.money = startingMoney;
+    this.money = money;
     this.inventory = new ArrayList<>();
     this.health = health;
     this.pintCount = pintCount;
+    this.currentTime = currentTime;
+    this.startingMoney = startingMoney;
+    this.hasKnocked = false;
     Item key = new UsableItem("key", "key to the house", 2, true, true, true);
     inventory.add(key);
   }
@@ -175,5 +184,63 @@ public class Player extends Character {
       System.out.println("Error loading player state: " + e.getMessage());
       return null;
     }
+  }
+
+  public int getCurrentTime() {
+    return currentTime;
+  }
+
+  public String getCurrentTimeFormatted() {
+    int totalMinutes = currentTime % (24 * 60);
+    int hours = totalMinutes / 60;
+    int minutes = totalMinutes % 60;
+
+    String period = "";
+    if (hours >= 12) {
+      period = "PM";
+      if (hours > 12) {
+        hours -= 12;
+      }
+    } else {
+      period = "AM";
+      if (hours == 0) {
+        hours = 12;
+      }
+    }
+
+    return String.format("%02d:%02d %s", hours, minutes, period);
+  }
+
+  public int getHourOfDay() {
+    return (currentTime / 60);
+  }
+
+  public void incrementTime(int minutes) {
+    if (minutes > 0) {
+      currentTime += minutes;
+    } else {
+      System.out.println("Invalid time increment.");
+    }
+  }
+
+  public boolean hasKnocked() {
+    return hasKnocked;
+  }
+
+  public void setHasKnocked(boolean hasKnocked) {
+    this.hasKnocked = hasKnocked;
+  }
+
+  public int getStartingMoney() {
+    return startingMoney;
+  }
+
+  public boolean hasKey() {
+    for (Item item : inventory) {
+      if (item.getName().equalsIgnoreCase("key")) {
+        return true;
+      }
+    }
+    return false;
   }
 }

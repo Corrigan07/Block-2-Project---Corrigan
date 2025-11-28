@@ -42,9 +42,12 @@ public class NPC extends Character {
     }
   }
 
-  public void talk() {
+  public void talk(int startOfDialogue, int endOfDialogue) {
     if (dialogueLines != null) {
-      for (String line : dialogueLines) {
+      for (String line : dialogueLines.subList(
+        startOfDialogue,
+        endOfDialogue
+      )) {
         System.out.println("\"" + line + "\"");
       }
     }

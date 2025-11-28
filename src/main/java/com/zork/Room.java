@@ -13,11 +13,20 @@ public class Room implements Serializable {
   private final List<Item> items = new ArrayList<>();
   private final List<NPC> npcs = new ArrayList<>();
   private String longDescription;
+  private boolean isDark;
+  private boolean isLocked;
 
-  public Room(String description, String longDescription) {
+  public Room(
+    String description,
+    String longDescription,
+    boolean isDark,
+    boolean isLocked
+  ) {
     this.description = description;
     this.longDescription = longDescription;
     exits = new HashMap<>();
+    this.isDark = isDark;
+    this.isLocked = isLocked;
   }
 
   public String getDescription() {
@@ -68,5 +77,13 @@ public class Room implements Serializable {
   public void addNpc(NPC npc) {
     if (npc == null) throw new IllegalArgumentException("npc cannot be null");
     npcs.add(npc);
+  }
+
+  public boolean isDark() {
+    return isDark;
+  }
+
+  public boolean isLocked() {
+    return isLocked;
   }
 }
