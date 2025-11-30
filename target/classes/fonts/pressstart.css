@@ -1,0 +1,28 @@
+@font-face {
+    font-family: 'Press Start 2P';
+    src: url('PressStart2P-Regular.ttf');
+}
+
+.root {
+    -fx-font-family: 'Press Start 2P';
+}
+
+.label {
+    -fx-font-family: 'Press Start 2P';
+}
+
+.text-area {
+    -fx-font-family: 'Press Start 2P';
+}
+
+.text-field {
+    -fx-font-family: 'Press Start 2P';
+}
+
+.button {
+    -fx-font-family: 'Press Start 2P';
+}
+
+.list-cell {
+    -fx-font-family: 'Press Start 2P';
+}

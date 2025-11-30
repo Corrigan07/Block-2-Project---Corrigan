@@ -38,54 +38,40 @@ public class Player extends Character {
     inventory.add(key);
   }
 
+  // PRINT REMOVED - Controller will call view.displayItemCollected()
   public void pickUpItem(Item item) {
     Room room = getCurrentRoom();
     if (item != null && room != null && room.getItemsInRoom().contains(item)) {
       inventory.add(item);
       room.getItemsInRoom().remove(item);
-      System.out.println("You picked up: " + item.getName());
-    } else {
-      System.out.println("Item not found in the room.");
     }
   }
 
+  // PRINT REMOVED - Controller will call view.displayItemDropped()
   public void dropItem(Item item) {
     Room room = getCurrentRoom();
     if (item != null && inventory.contains(item)) {
       inventory.remove(item);
       room.addItem(item);
-      System.out.println("You dropped: " + item.getName());
-    } else {
-      System.out.println("You don't have that item.");
     }
   }
 
+  // PRINT REMOVED - Controller will call view.displayItemRemovedFromInventory()
   public void removeItemFromInventory(Item item) {
     if (item != null && inventory.contains(item)) {
       inventory.remove(item);
-      System.out.println("Removed from inventory: " + item.getName());
-    } else {
-      System.out.println("Item not found in inventory.");
     }
   }
 
+  // PRINT REMOVED - Controller will call view.displayInventory()
   public List<Item> showInventory() {
-    if (inventory.isEmpty()) {
-      System.out.println("Your inventory is empty.");
-      return inventory;
-    } else {
-      System.out.println("Inventory:");
-      for (Item item : inventory) {
-        System.out.println("- " + item.getName());
-      }
-      return inventory;
-    }
+    return inventory;
   }
 
+  // PRINT REMOVED - Controller will call view.displayItemAddedToInventory()
   public void addItemToInventory(Item item) {
     if (item != null) {
       inventory.add(item);
-      System.out.println("Added to inventory: " + item.getName());
     }
   }
 
@@ -97,23 +83,17 @@ public class Player extends Character {
     return money;
   }
 
+  // PRINT REMOVED - Controller will call view.displayMoneyGained()
   public void addMoney(int amount) {
     if (amount > 0) {
       money += amount;
-      System.out.println(
-        "You received " + amount + " money. Total money: " + money
-      );
     }
   }
 
+  // PRINT REMOVED - Controller will call view.displayMoneyLost()
   public void removeMoney(int amount) {
     if (amount > 0 && amount <= money) {
       money -= amount;
-      System.out.println(
-        "You lose " + amount + " money. Remaining money: " + money
-      );
-    } else {
-      System.out.println("Insufficient funds.");
     }
   }
 
@@ -121,27 +101,23 @@ public class Player extends Character {
     return health;
   }
 
+  // PRINT REMOVED - Controller will call view.displayHealthLost()
   public void removeHealth(int amount) {
     if (amount > 0) {
       health -= amount;
       if (health < 0) {
         health = 0;
       }
-      System.out.println(
-        "You lost " + amount + " health. Remaining health: " + health
-      );
     }
   }
 
+  // PRINT REMOVED - Controller will call view.displayHealthGained()
   public void addHealth(int amount) {
     if (amount > 0) {
       health += amount;
       if (health < 0) {
         health = 0;
       }
-      System.out.println(
-        "You gained " + amount + " health. Remaining health: " + health
-      );
     }
   }
 
@@ -159,6 +135,7 @@ public class Player extends Character {
     }
   }
 
+  // PRINT REMOVED - Controller will call view.displaySaveSuccess()
   public void savePlayerState() {
     try (
       ObjectOutputStream out = new ObjectOutputStream(
@@ -166,12 +143,12 @@ public class Player extends Character {
       )
     ) {
       out.writeObject(this);
-      System.out.println("Player state saved successfully.");
     } catch (Exception e) {
       System.out.println("Error saving player state: " + e.getMessage());
     }
   }
 
+  // PRINT REMOVED - Controller will call view.displayLoadSuccess()
   public static Player loadPlayerState() {
     try (
       ObjectInputStream in = new ObjectInputStream(
@@ -179,10 +156,8 @@ public class Player extends Character {
       )
     ) {
       Player player = (Player) in.readObject();
-      System.out.println("Player state loaded successfully.");
       return player;
     } catch (Exception e) {
-      System.out.println("Error loading player state: " + e.getMessage());
       return null;
     }
   }
@@ -219,8 +194,6 @@ public class Player extends Character {
   public void incrementTime(int minutes) {
     if (minutes > 0) {
       currentTime += minutes;
-    } else {
-      System.out.println("Invalid time increment.");
     }
   }
 
@@ -267,13 +240,9 @@ public class Player extends Character {
       return;
     }
 
-    // Create list of items to potentially drop
     ArrayList<Item> droppableItems = new ArrayList<>(inventory);
-
-    // Ensure we don't try to drop more items than player has
     int actualDropCount = Math.min(count, droppableItems.size());
 
-    // Shuffle and drop random items
     Random random = new Random();
     for (int i = 0; i < actualDropCount; i++) {
       if (droppableItems.isEmpty()) break;

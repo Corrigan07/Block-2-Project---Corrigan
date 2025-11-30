@@ -3,11 +3,16 @@ C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\Character
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\Command.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\CommandType.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\CommandWords.java
+C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\ConsoleView.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\DiceGame.java
+C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\DiceGameResult.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\Direction.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\Drink.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\Food.java
+C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\GameController.java
+C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\GameView.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\GuiMain.java
+C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\GuiView.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\Item.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\NPC.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\Parser.java
@@ -15,5 +20,7 @@ C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\Player.ja
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\PurchasableItem.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\Room.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\UsableItem.java
+C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\Weapon.java
+C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\WifeRequirements.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\ZorkUL.java
 C:\Users\seanc\Desktop\Block 2 Project\JavaZork\src\main\java\com\zork\ZorkULGame.java

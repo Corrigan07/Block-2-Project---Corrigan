@@ -12,31 +12,31 @@ public class DiceGame {
     this.random = new Random();
   }
 
-  public int playRound(int betAmount, int playerMoney) {
+  public DiceGameResult playRound(int betAmount, int playerMoney) {
+    // Validation - return null for invalid bets
     if (betAmount < MIN_BET || betAmount > MAX_BET) {
-      System.out.println("Bet must be between " + MIN_BET + " and " + MAX_BET);
-      return -999; // Invalid bet sentinel value
+      return null; // Invalid bet
     }
 
     if (betAmount > playerMoney) {
-      System.out.println("You don't have enough money to place that bet.");
-      return -999; // Invalid bet sentinel value
+      return null; // Not enough money
     }
 
+    // Roll dice
     int playerRoll = rollDice();
     int bobRoll = rollDice();
 
-    System.out.println("\n --- Rolling dice... ---");
-    System.out.println("You rolled: " + playerRoll);
-    System.out.println("Bob rolled: " + bobRoll);
-
+    // Calculate result
+    int moneyChange;
     if (playerRoll > bobRoll) {
-      return betAmount;
+      moneyChange = betAmount; // Win
     } else if (playerRoll < bobRoll) {
-      return -betAmount;
+      moneyChange = -betAmount; // Lose
     } else {
-      return 0;
+      moneyChange = 0; // Tie
     }
+
+    return new DiceGameResult(playerRoll, bobRoll, moneyChange);
   }
 
   private int rollDice() {

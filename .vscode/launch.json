@@ -3,6 +3,20 @@
     "configurations": [
         {
             "type": "java",
+            "name": "GuiView",
+            "request": "launch",
+            "mainClass": "com.zork.GuiView",
+            "projectName": "JavaZork"
+        },
+        {
+            "type": "java",
+            "name": "ZorkULGameCopy",
+            "request": "launch",
+            "mainClass": "com.zork.ZorkULGameCopy",
+            "projectName": "JavaZork"
+        },
+        {
+            "type": "java",
             "name": "GuiMain",
             "request": "launch",
             "mainClass": "com.zork.GuiMain",

@@ -33,23 +33,4 @@ public class NPC extends Character {
   public void setWelcomeLines(List<String> welcomeLines) {
     this.welcomeLines = welcomeLines;
   }
-
-  public void welcomePlayer() {
-    if (welcomeLines != null) {
-      for (String line : welcomeLines) {
-        System.out.println("\"" + line + "\"");
-      }
-    }
-  }
-
-  public void talk(int startOfDialogue, int endOfDialogue) {
-    if (dialogueLines != null) {
-      for (String line : dialogueLines.subList(
-        startOfDialogue,
-        endOfDialogue
-      )) {
-        System.out.println("\"" + line + "\"");
-      }
-    }
-  }
 }
