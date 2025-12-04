@@ -7,7 +7,7 @@ public interface GameView {
   void displayMessage(String message);
 
   // === ROOM & WORLD ===
-  void displayRoom(Room room);
+  void displayRoom(Room room, Room previousRoom);
   void displayMenu(List<PurchasableItem> menu);
   void displayWelcome(String playerName);
   void displayHelp(Room currentRoom);

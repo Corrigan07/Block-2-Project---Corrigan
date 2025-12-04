@@ -1,6 +1,7 @@
 package com.zork;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,7 +15,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class GuiView extends Application implements GameView {
 
@@ -57,6 +61,8 @@ public class GuiView extends Application implements GameView {
   private GameController controller;
   private Parser parser;
   private CommandWords commandWords;
+  private MediaPlayer mediaPlayer;
+  private MediaPlayer backgroundMusicPlayer;
 
   // State management for initialization
   private boolean waitingForGameChoice = false;
@@ -69,6 +75,17 @@ public class GuiView extends Application implements GameView {
   @Override
   public void start(Stage stage) throws Exception {
     try {
+      // Load the custom font first
+      try {
+        javafx.scene.text.Font.loadFont(
+          getClass().getResourceAsStream("/fonts/PressStart2P-Regular.ttf"),
+          12
+        );
+        System.out.println("Font loaded successfully");
+      } catch (Exception e) {
+        System.err.println("Failed to load font: " + e.getMessage());
+      }
+
       System.out.println("Loading FXML...");
       FXMLLoader loader = new FXMLLoader(
         getClass().getResource("/fxml/GUI.fxml")
@@ -81,6 +98,9 @@ public class GuiView extends Application implements GameView {
       System.out.println("FXML loaded successfully");
 
       Scene scene = new Scene(root);
+      scene
+        .getStylesheets()
+        .add(getClass().getResource("/fonts/pressstart.css").toExternalForm());
       stage.setScene(scene);
       stage.setTitle("The Usual");
       stage.setMinWidth(800);
@@ -99,6 +119,9 @@ public class GuiView extends Application implements GameView {
       // Start initialization sequence through text input
       startInitialization();
       System.out.println("Initialization started");
+
+      // Start background music
+      startBackgroundMusic();
     } catch (Exception e) {
       System.err.println("ERROR in GuiView.start(): " + e.getMessage());
       e.printStackTrace();
@@ -175,7 +198,6 @@ public class GuiView extends Application implements GameView {
             loaded.getName() +
             "!\n\n"
           );
-          controller.initializeAfterLoad();
           controller.displayGameStart();
         } else {
           outputTextArea.appendText(
@@ -257,13 +279,27 @@ public class GuiView extends Application implements GameView {
   }
 
   @Override
-  public void displayRoom(Room room) {
+  public void displayRoom(Room room, Room previousRoom) {
     javafx.application.Platform.runLater(() -> {
       roomImageView.setImage(loadRoomImage(room));
       mapImageView.setImage(loadMapImage(room));
 
       outputTextArea.appendText("\n" + room.getLocationDescription() + "\n");
       outputTextArea.appendText(room.getLongDescription() + "\n");
+
+      // Play audio for chipperCounter room
+      if (room.getLocationDescription().contains("at the chipper counter")) {
+        playAudio("/audio/Its A Me, Mario - QuickSounds.com.mp3");
+      }
+
+      // Play hello sound only when entering chipper from outside
+      if (
+        room.getLocationDescription().contains("Mario's Chipper") &&
+        previousRoom != null &&
+        previousRoom.getLocationDescription().contains("in the middle of town")
+      ) {
+        playAudio("/audio/sm64_mario_hello.wav");
+      }
     });
   }
 
@@ -526,6 +562,10 @@ public class GuiView extends Application implements GameView {
   public void displayNPCDialogue(String npcName, String dialogue) {
     javafx.application.Platform.runLater(() -> {
       outputTextArea.appendText(npcName + ": \"" + dialogue + "\"\n");
+
+      if (npcName.equalsIgnoreCase("Mario")) {
+        playAudio("/audio/mlrpg3_mario_gibberish_4.wav");
+      }
     });
   }
 
@@ -772,6 +812,12 @@ public class GuiView extends Application implements GameView {
   @Override
   public void displayEnding(WifeRequirements wifeReq, Player player) {
     javafx.application.Platform.runLater(() -> {
+      // Stop background music so ending audio can play
+      if (backgroundMusicPlayer != null) {
+        backgroundMusicPlayer.stop();
+        backgroundMusicPlayer.dispose();
+      }
+
       // Display wife image based on score
       int score = wifeReq.calculateScore();
       String wifeImageName = getWifeImageName(score);
@@ -904,6 +950,7 @@ public class GuiView extends Application implements GameView {
   public void displayGoodbye() {
     javafx.application.Platform.runLater(() -> {
       outputTextArea.appendText("\"See you around so!\"\n");
+      playAudio("/audio/mario-64-ds-_bye-bye_-made-with-Voicemod.mp3");
     });
   }
 
@@ -947,7 +994,7 @@ public class GuiView extends Application implements GameView {
 
     if (location.contains("in the middle of town")) {
       return "betterOutside.png";
-    } else if (location.contains("in the Mario's Chipper")) {
+    } else if (location.contains("in Mario's Chipper")) {
       // Check if hurl is in the room
       boolean hasHurl = room
         .getItemsInRoom()
@@ -990,12 +1037,16 @@ public class GuiView extends Application implements GameView {
 
   private String getWifeImageName(int score) {
     if (score >= 5) {
+      playAudio("/audio/52ac54_super_mario_bros_stage_clear_sound_effect.mp3");
       return "wifeHappy.png";
     } else if (score >= 3) {
+      playAudio("/audio/neutral.mp3");
       return "wifeNeutral.png";
     } else if (score >= 1) {
+      playAudio("/audio/super-mario-bros_2.mp3");
       return "wifeMad.png";
     } else {
+      playAudio("/audio/26-game-over-1.mp3");
       return "wifeFurious.png";
     }
   }
@@ -1075,5 +1126,63 @@ public class GuiView extends Application implements GameView {
 
   private javafx.scene.image.Image createBlankImage(int width, int height) {
     return new javafx.scene.image.WritableImage(width, height);
+  }
+
+  private void playAudio(String audioPath) {
+    try {
+      // Stop any currently playing audio
+      if (mediaPlayer != null) {
+        mediaPlayer.stop();
+        mediaPlayer.dispose();
+      }
+
+      // Load and play the new audio
+      String audioResource = getClass().getResource(audioPath).toExternalForm();
+      Media media = new Media(audioResource);
+      mediaPlayer = new MediaPlayer(media);
+
+      // Set volume (optional, adjust between 0.0 and 1.0)
+      mediaPlayer.setVolume(0.7);
+
+      // Auto-stop at end
+      mediaPlayer.setOnEndOfMedia(() -> {
+        mediaPlayer.stop();
+      });
+
+      mediaPlayer.play();
+      System.out.println("Playing audio: " + audioPath);
+    } catch (Exception e) {
+      System.err.println("Failed to play audio: " + audioPath);
+      e.printStackTrace();
+    }
+  }
+
+  // Public method for GameController to trigger audio
+  public void playAudioFromController(String audioPath) {
+    javafx.application.Platform.runLater(() -> {
+      playAudio(audioPath);
+    });
+  }
+
+  private void startBackgroundMusic() {
+    try {
+      System.out.println("Starting background music...");
+      String musicPath = "/audio/62. Staff Roll.mp3";
+      String audioResource = getClass().getResource(musicPath).toExternalForm();
+      Media media = new Media(audioResource);
+      backgroundMusicPlayer = new MediaPlayer(media);
+
+      // Set volume lower for background music (adjust between 0.0 and 1.0)
+      backgroundMusicPlayer.setVolume(0.6);
+
+      // Loop the music indefinitely
+      backgroundMusicPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+
+      backgroundMusicPlayer.play();
+      System.out.println("Background music started");
+    } catch (Exception e) {
+      System.err.println("Failed to start background music");
+      e.printStackTrace();
+    }
   }
 }

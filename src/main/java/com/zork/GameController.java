@@ -11,14 +11,14 @@ public class GameController {
   private String gameChoice = "";
   private String playerName = "";
   private Room outside, chipper, pub, cab, house, alleyway, bathroomPub, bathroomChipper, outsideHouse, bar, chipperCounter;
-  private Drink pint, water;
-  private Food chips, burger, kebab;
+  private Drink pint, barPint, water;
+  private Food chips, burger, kebab, counterChips;
   private Weapon bottle, hurl;
   private ArrayList<PurchasableItem> menu = new ArrayList<>();
   private DiceGame diceGame;
   private NPC bartender, lad, chipperOwner, billy, cabDriver, wife;
-  private boolean billyEncountered = false;
   private boolean gameOver = false;
+  private boolean warningPlayed = false;
 
   public GameController(GameView view) {
     this.view = view;
@@ -39,7 +39,7 @@ public class GameController {
       false
     );
     chipper = new Room(
-      "in the Mario's Chipper",
+      "in Mario's Chipper",
       "Not the tidiest place, but the chips are the best in town.",
       false,
       false
@@ -111,6 +111,7 @@ public class GameController {
     chipper.setExit(Direction.ORDER, chipperCounter);
 
     chipperCounter.setExit(Direction.BACK, chipper);
+
     pub.setExit(Direction.EAST, outside);
     pub.setExit(Direction.NORTH, bathroomPub);
     pub.setExit(Direction.ORDER, bar);
@@ -128,8 +129,15 @@ public class GameController {
   }
 
   private void createItems() {
-    pint = new Drink("pint", "A refreshing pint of beer.", false, true, 5);
-    bar.addItem(pint);
+    pint = new Drink("pint", "A refreshing pint of beer.", true, true, 5);
+    barPint = new Drink(
+      "pint",
+      "A refreshing foamy pint of beer on the bar",
+      false,
+      true,
+      0
+    );
+    bar.addItem(barPint);
     water = new Drink(
       "water",
       "A bottle of water to keep you hydrated.",
@@ -148,8 +156,15 @@ public class GameController {
     bathroomPub.addItem(bottleBox);
 
     chipperCounter.addItem(water);
-    chips = new Food("chips", "A delicious serving of chips.", false, true, 7);
-    chipperCounter.addItem(chips);
+    chips = new Food("chips", "A delicious serving of chips.", true, true, 7);
+    counterChips = new Food(
+      "chips",
+      "A delicious serving of chips on the counter.",
+      false,
+      false,
+      0
+    );
+    chipperCounter.addItem(counterChips);
     menu.add(chips);
 
     hurl = new Weapon("hurl", "A hurling stick", 15, true, true);
@@ -237,8 +252,36 @@ public class GameController {
   }
 
   public void startGame() {
-    // This method is now just a compatibility wrapper
-    // Initialization is handled by GUI through createNewPlayer or loadGame
+    // For console mode, create a default player if none exists
+    if (player == null && view instanceof ConsoleView) {
+      view.displayMessage("Welcome to The Usual!");
+      view.displayMessage(
+        "Would you like to start a new game or load a saved game?"
+      );
+      view.displayMessage(
+        "Type 'new' for a new game or 'load' to load a saved game:"
+      );
+      String choice = view.getUserInput().trim().toLowerCase();
+
+      if (choice.equals("load")) {
+        Player loadedPlayer = Player.loadPlayerState();
+        if (loadedPlayer != null) {
+          setPlayer(loadedPlayer);
+          displayGameStart();
+          view.displayMessage("Game loaded successfully!");
+        } else {
+          view.displayMessage("No saved game found. Starting a new game...");
+          view.displayMessage("What is your name?");
+          String name = view.getUserInput();
+          createNewPlayer(name);
+        }
+      } else {
+        view.displayMessage("What is your name?");
+        String name = view.getUserInput();
+        createNewPlayer(name);
+      }
+    }
+    // For GUI mode, initialization is handled through createNewPlayer or loadGame
   }
 
   public void createNewPlayer(String playerName) {
@@ -275,13 +318,9 @@ public class GameController {
     }
   }
 
-  public void initializeAfterLoad() {
-    // Any post-load initialization can go here
-  }
-
   public void displayGameStart() {
     view.displayWelcome(playerName);
-    view.displayRoom(player.getCurrentRoom());
+    view.displayRoom(player.getCurrentRoom(), null);
     if (view instanceof GuiView) {
       ((GuiView) view).updateInventoryDisplay(player.getInventory());
     } else {
@@ -370,6 +409,7 @@ public class GameController {
     } else {
       gameOver = true;
       view.displayMessage("Thank you for playing. Goodbye.");
+      System.exit(0);
     }
   }
 
@@ -455,7 +495,13 @@ public class GameController {
     } else if (checkWhat.equalsIgnoreCase("health")) {
       view.displayHealth(player.getHealth());
     } else if (checkWhat.equalsIgnoreCase("time")) {
-      view.displayTime(player.getCurrentTimeFormatted());
+      if (view instanceof ConsoleView) {
+        view.displayMessage(
+          "Current time: " + player.getCurrentTimeFormatted()
+        );
+      } else {
+        view.displayTime(player.getCurrentTimeFormatted());
+      }
     } else {
       view.displayMessage("You can't check that!");
     }
@@ -507,8 +553,10 @@ public class GameController {
       view.displayNPCDialogue(npc.getName(), line);
     }
 
-    player.incrementTime(4);
+    player.incrementTime(8);
     view.displayTime(player.getCurrentTimeFormatted());
+    checkTimeBasedAudio();
+    checkTimeBasedAudio();
 
     if (npc.getName().equals("John the Bartender")) {
       if (view instanceof GuiView) {
@@ -630,11 +678,20 @@ public class GameController {
         view.displayMoney(player.getMoney());
         view.displayCabRide();
         player.setCurrentRoom(outsideHouse);
-        player.incrementTime(15);
+        player.incrementTime(20);
         view.displayTime(player.getCurrentTimeFormatted());
-        view.displayRoom(player.getCurrentRoom());
+        checkTimeBasedAudio();
+        view.displayRoom(player.getCurrentRoom(), null);
       } else {
-        view.displayMessage("You don't have enough money for the cab.");
+        view.displayMessage(
+          "Ah here, you're lucky I'm in a good mood tonight."
+        );
+        view.displayCabRide();
+        player.setCurrentRoom(outsideHouse);
+        player.incrementTime(20);
+        view.displayTime(player.getCurrentTimeFormatted());
+        checkTimeBasedAudio();
+        view.displayRoom(player.getCurrentRoom(), null);
       }
     } else if ("no".equalsIgnoreCase(cabResponse)) {
       view.displayStayOut();
@@ -717,15 +774,16 @@ public class GameController {
       player.removeHealth(5);
       int newHealth = player.getHealth();
       player.incrementPintCount();
-      player.incrementTime(5);
+      player.incrementTime(10);
 
       view.displayDrinkPint(5, newHealth);
       view.displayTime(player.getCurrentTimeFormatted());
+      checkTimeBasedAudio();
     } else {
       view.displayDrinkWater();
-      player.decrementPintCount();
-      player.incrementTime(2);
+      player.incrementTime(5);
       view.displayTime(player.getCurrentTimeFormatted());
+      checkTimeBasedAudio();
     }
 
     // Remove the item after drinking
@@ -771,10 +829,11 @@ public class GameController {
     // Eat the food
     player.addHealth(5);
     int newHealth = player.getHealth();
-    player.incrementTime(3);
+    player.incrementTime(8);
 
     view.displayEatFood(itemToEat.getName(), 5, newHealth);
     view.displayTime(player.getCurrentTimeFormatted());
+    checkTimeBasedAudio();
 
     // Remove the item after eating
     player.removeItemFromInventory(itemToEat);
@@ -905,8 +964,9 @@ public class GameController {
       }
 
       view.displayMessage("Your current money: €" + player.getMoney());
-      player.incrementTime(15);
+      player.incrementTime(25);
       view.displayTime(player.getCurrentTimeFormatted());
+      checkTimeBasedAudio();
     } catch (NumberFormatException e) {
       view.displayInvalidBet();
     }
@@ -919,8 +979,9 @@ public class GameController {
     }
 
     view.displayKnock();
-    player.incrementTime(1);
+    player.incrementTime(3);
     view.displayTime(player.getCurrentTimeFormatted());
+    checkTimeBasedAudio();
     player.setHasKnocked(true);
     player.setCurrentRoom(house);
 
@@ -990,14 +1051,14 @@ public class GameController {
           } else {
             view.displayDoorUnlocked();
             player.setCurrentRoom(nextRoom);
-            view.displayRoom(player.getCurrentRoom());
+            view.displayRoom(player.getCurrentRoom(), previousRoom);
 
             handleEnding();
             return;
           }
         } else {
           player.setCurrentRoom(nextRoom);
-          view.displayRoom(player.getCurrentRoom());
+          view.displayRoom(player.getCurrentRoom(), previousRoom);
 
           handleEnding();
           return;
@@ -1006,18 +1067,17 @@ public class GameController {
 
       // Normal room movement
       player.setCurrentRoom(nextRoom);
-      view.displayRoom(player.getCurrentRoom());
+      view.displayRoom(player.getCurrentRoom(), previousRoom);
 
-      // Billy encounter on first entry to alleyway
-      if (nextRoom == alleyway && !billyEncountered) {
+      if (nextRoom == alleyway && alleyway.getNpcsInRoom().contains(billy)) {
         billyFight();
-        billyEncountered = true;
       }
 
       // Time increment for major location changes
       if (isMajorLocation(previousRoom) && isMajorLocation(nextRoom)) {
-        player.incrementTime(10);
+        player.incrementTime(15);
         view.displayTime(player.getCurrentTimeFormatted());
+        checkTimeBasedAudio();
       }
     }
   }
@@ -1025,8 +1085,9 @@ public class GameController {
   private void billyFight() {
     view.displayBillyIntro();
 
-    player.incrementTime(2);
+    player.incrementTime(5);
     view.displayTime(player.getCurrentTimeFormatted());
+    checkTimeBasedAudio();
 
     Weapon weapon = player.getBestWeapon();
 
@@ -1041,15 +1102,18 @@ public class GameController {
       int damage = weapon.getDamage();
       int moneyStolen;
       int itemsToDrop;
+      int healthLoss;
 
       view.displayBillyWeaponResponse(damage);
 
       if (damage >= 15) {
         moneyStolen = 10;
         itemsToDrop = 2;
+        healthLoss = 5;
       } else {
         moneyStolen = 20;
         itemsToDrop = 3;
+        healthLoss = 10;
       }
 
       int actualStolen = Math.min(player.getMoney(), moneyStolen);
@@ -1058,6 +1122,11 @@ public class GameController {
         player.removeMoney(actualStolen);
         view.displayMoney(player.getMoney());
       }
+
+      // Remove health from player
+      player.removeHealth(healthLoss);
+      view.displayHealth(player.getHealth());
+      view.displayHealthLost(healthLoss, player.getHealth());
 
       player.dropRandomItems(itemsToDrop, alleyway);
       if (view instanceof GuiView) {
@@ -1071,6 +1140,12 @@ public class GameController {
         player.removeMoney(moneyStolen);
         view.displayMoney(player.getMoney());
       }
+
+      // Remove health from player (more damage without weapon)
+      int healthLoss = 15;
+      player.removeHealth(healthLoss);
+      view.displayHealth(player.getHealth());
+      view.displayHealthLost(healthLoss, player.getHealth());
 
       // Drop all items
       int itemCount = player.getInventory().size();
@@ -1095,5 +1170,18 @@ public class GameController {
       room == cab ||
       room == house
     );
+  }
+
+  // Check if it's 10pm and play warning audio
+  private void checkTimeBasedAudio() {
+    if (!warningPlayed && player.getHourOfDay() >= 22) {
+      warningPlayed = true;
+      if (view instanceof GuiView) {
+        ((GuiView) view).playAudioFromController("/audio/smb_warning.wav");
+      }
+      view.displayMessage(
+        "\n*** WARNING: It's getting late! Your wife expects you home soon! ***\n"
+      );
+    }
   }
 }

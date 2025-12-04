@@ -15,6 +15,7 @@ public class Player extends Character {
   private int currentTime;
   private int startingMoney;
   private boolean hasKnocked;
+  private boolean billyEncountered;
 
   public Player(
     String name,
@@ -34,6 +35,7 @@ public class Player extends Character {
     this.currentTime = currentTime;
     this.startingMoney = startingMoney;
     this.hasKnocked = false;
+    this.billyEncountered = false;
     Item key = new UsableItem("key", "key to the house", true, true, true);
     inventory.add(key);
   }
@@ -254,5 +256,13 @@ public class Player extends Character {
       inventory.remove(itemToDrop);
       droppableItems.remove(randomIndex);
     }
+  }
+
+  public boolean hasBillyEncountered() {
+    return billyEncountered;
+  }
+
+  public void setBillyEncountered(boolean billyEncountered) {
+    this.billyEncountered = billyEncountered;
   }
 }

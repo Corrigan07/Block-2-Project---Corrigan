@@ -21,8 +21,8 @@ public class ConsoleView implements GameView {
   // === ROOM & WORLD ===
 
   @Override
-  public void displayRoom(Room room) {
-    System.out.println(room.getLocationDescription());
+  public void displayRoom(Room room, Room previousRoom) {
+    System.out.println("\n" + room.getLocationDescription());
     System.out.println(room.getLongDescription());
 
     if (!room.getItemsInRoom().isEmpty()) {
@@ -138,7 +138,8 @@ public class ConsoleView implements GameView {
 
   @Override
   public void displayTime(String formattedTime) {
-    System.out.println("Current time: " + formattedTime);
+    // Only display time in console when explicitly checked
+    // GUI view needs this for updating the time label, but console doesn't need constant updates
   }
 
   @Override

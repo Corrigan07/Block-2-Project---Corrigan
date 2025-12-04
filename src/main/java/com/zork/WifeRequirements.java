@@ -11,10 +11,10 @@ public class WifeRequirements {
   private int health;
 
   private static final int REQUIREMENTS_NEEDED = 3;
-  private static final int MAX_PINTS = 5;
-  private static final int MIN_HEALTH = 50;
-  private static final int MIN_MONEY = 40;
-  private static final int LATE_HOUR = 23;
+  private static final int MAX_PINTS = 4;
+  private static final int MIN_HEALTH = 70;
+  private static final int MIN_MONEY = 50;
+  private static final int LATE_HOUR = 23; // 11 PM - last acceptable hour
 
   public WifeRequirements(
     boolean hasFood,
@@ -40,8 +40,9 @@ public class WifeRequirements {
     if (hasKey && !knockedOnDoor) score++;
     if (pintsDrank <= MAX_PINTS) score++;
     if (health >= MIN_HEALTH) score++;
-    int hourOfDay = timeInMinutes / 60;
-    if (hourOfDay <= LATE_HOUR) score++;
+    // Check if arrived before midnight (< 1440 minutes = 24 hours from start of day)
+    int hourOfDay = (timeInMinutes / 60) % 24;
+    if (hourOfDay >= 18 && hourOfDay <= LATE_HOUR) score++; // Between 6 PM and 12 AM same day
     if (currentMoney >= MIN_MONEY) score++;
     return score;
   }
@@ -101,8 +102,9 @@ public class WifeRequirements {
       breakdown.append("- Health Above Minimum: No (+0)\n");
     }
 
-    int hourOfDay = timeInMinutes / 60;
-    if (hourOfDay <= LATE_HOUR) {
+    int hourOfDay = (timeInMinutes / 60) % 24; // Wrap to 24-hour format
+    // Check if arrived between 6 PM and 12 AM same day
+    if (hourOfDay >= 18 && hourOfDay <= LATE_HOUR) {
       breakdown.append(
         "- Home on time: " + formatTime(timeInMinutes) + " (+1)\n"
       );
@@ -126,7 +128,7 @@ public class WifeRequirements {
   }
 
   private String formatTime(int totalMinutes) {
-    int hours = totalMinutes / 60;
+    int hours = (totalMinutes / 60) % 24; // Wrap hours to 24-hour format
     int minutes = totalMinutes % 60;
 
     String period = "";
